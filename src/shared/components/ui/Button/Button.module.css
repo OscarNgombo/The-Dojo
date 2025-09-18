@@ -1,0 +1,104 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  text-decoration: none;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Button variants */
+.primary {
+  background-color: #3498db;
+  color: #ffffff;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.secondary {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.danger {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.success {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.success:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.text {
+  background-color: transparent;
+  color: #3498db;
+  padding: 0;
+}
+
+.text:hover:not(:disabled) {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+/* Button sizes */
+.small {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+}
+
+.medium {
+  padding: 8px 16px;
+  font-size: 1rem;
+}
+
+.large {
+  padding: 12px 24px;
+  font-size: 1.125rem;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 576px) {
+  .small {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+  
+  .medium {
+    padding: 7px 14px;
+    font-size: 0.875rem;
+  }
+  
+  .large {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+}

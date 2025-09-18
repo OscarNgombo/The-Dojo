@@ -1,0 +1,83 @@
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f9fafb;
+}
+
+.authCard {
+  width: 100%;
+  max-width: 420px;
+}
+
+.authTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  text-align: center;
+}
+
+.authError {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.authLinks {
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.authLinks a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.authLinks a:hover {
+  text-decoration: underline;
+}
+
+.formDivider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #9ca3af;
+}
+
+.formDivider::before,
+.formDivider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.formDivider span {
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 576px) {
+  .authContainer {
+    padding: 16px;
+    background-color: #ffffff;
+  }
+  
+  .authCard {
+    box-shadow: none;
+    border: none;
+  }
+  
+  .authTitle {
+    font-size: 1.25rem;
+  }
+}
