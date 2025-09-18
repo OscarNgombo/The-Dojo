@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   margin: 20px 0;
-  color: #9ca3af;
+  text-align: center;
 }
 
 .formDivider::before,
@@ -62,7 +62,12 @@
 
 .formDivider span {
   padding: 0 10px;
+  color: #6b7280;
   font-size: 14px;
+}
+
+.socialLoginContainer {
+  margin-top: 16px;
 }
 
 /* Mobile responsive adjustments */
@@ -71,7 +76,7 @@
     padding: 16px;
     background-color: #ffffff;
   }
-  
+
   .authCard {
     box-shadow: none;
     border: none;

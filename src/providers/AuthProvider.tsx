@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { User, LoginCredentials, RegisterCredentials } from '../types';
 import { authService } from '../api';
 import { useApiCall } from '../hooks/useApiCall';
+import { decodeGoogleToken } from '../utils/googleAuth';
 
 interface AuthContextType {
   user: User | null;
@@ -10,6 +11,7 @@ interface AuthContextType {
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
+  loginWithGoogle: (token: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -97,6 +99,47 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   /**
+   * Login with Google
+   */
+  const loginWithGoogle = async (token: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // For now, we'll decode the token on the client and create a mock session
+      const googleUser = decodeGoogleToken(token);
+
+      // Create a mock user object
+      const mockUser: User = {
+        id: googleUser.sub,
+        name: googleUser.name,
+        email: googleUser.email,
+        role: googleUser.email === 'oscartinga@gmail.com' ? 'admin' : 'trainee',
+        status: 'approved',
+        avatar: googleUser.picture,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Create a mock session token
+      const mockToken = `mock_token_for_${googleUser.sub}`;
+      
+      authService.setToken(mockToken);
+      setUser(mockUser);
+      setIsAuthenticated(true);
+
+      // Log the user's email to the console
+      console.log('Logged in user email:', mockUser.email);
+
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Google login failed');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
    * Logout the current user
    */
   const logout = () => {
@@ -114,6 +157,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         error,
         login,
         register,
+        loginWithGoogle,
         logout,
         isAuthenticated,
       }}

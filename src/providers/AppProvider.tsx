@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useMemo } from 'react';
+import { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { initializeGoogleAuth, debugGoogleSignIn } from '../utils/googleAuth';
 
 interface AppState {
   loading: boolean;
@@ -31,6 +32,20 @@ interface AppProviderProps {
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   const [state, setState] = useState<AppState>(initialState);
+
+  // Initialize Google Auth when the app starts
+  useEffect(() => {
+    initializeGoogleAuth()
+      .then(() => {
+        console.log('Google Identity Services initialized successfully');
+        if (import.meta.env.MODE !== 'production') {
+          debugGoogleSignIn();
+        }
+      })
+      .catch((error) => {
+        console.warn('Failed to initialize Google Auth:', error);
+      });
+  }, []);
 
   // Memoize actions to prevent unnecessary re-renders
   const actions = useMemo<AppActions>(

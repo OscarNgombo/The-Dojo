@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../providers'
 import { Spinner, Card, CardBody, Button } from '../shared/components/ui'
+import { useEffect } from 'react';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -8,9 +9,16 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const { user, isAuthenticated, loading } = useAuth()
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate({ to: '/auth/login' });
+    }
+  }, [isAuthenticated, loading, navigate]);
 
   // Show loading spinner while checking authentication
-  if (loading) {
+  if (loading || !isAuthenticated) {
     return (
       <div
         style={{
@@ -23,12 +31,6 @@ function HomePage() {
         <Spinner size="large" color="primary" />
       </div>
     )
-  }
-
-  // If not authenticated, redirect to login
-  if (!isAuthenticated) {
-    window.location.href = '/auth/login'
-    return null
   }
 
   // If user is authenticated, show appropriate landing page based on role
@@ -53,9 +55,7 @@ function HomePage() {
                 >
                   <Button
                     variant="primary"
-                    onClick={() => {
-                      window.location.href = '/admin'
-                    }}
+                    onClick={() => navigate({ to: '/admin' })}
                   >
                     Admin Dashboard
                   </Button>
@@ -75,9 +75,7 @@ function HomePage() {
                 >
                   <Button
                     variant="primary"
-                    onClick={() => {
-                      window.location.href = '/trainee'
-                    }}
+                    onClick={() => navigate({ to: '/trainee' })}
                   >
                     Trainee Dashboard
                   </Button>

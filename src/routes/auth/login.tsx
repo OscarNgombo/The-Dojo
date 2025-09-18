@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../providers';
 import { 
   Card, 
@@ -9,17 +9,28 @@ import {
   FormGroup,
   Input,
   Button,
-  Spinner
+  Spinner,
+  GoogleButton
 } from '../../shared/components/ui';
 import { Link } from '@tanstack/react-router';
 import styles from './auth.module.css';
+import { useEffect } from 'react';
+import { initializeGoogleAuth, signInWithGoogle } from '../../utils/googleAuth';
 
 export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
 });
 
 function LoginPage() {
-  const { login, error, loading } = useAuth();
+  const { login, loginWithGoogle, error, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Initialize Google Auth when component mounts
+  useEffect(() => {
+    initializeGoogleAuth().catch(error => {
+      console.error('Failed to initialize Google Auth:', error);
+    });
+  }, []);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -35,9 +46,26 @@ function LoginPage() {
     
     try {
       await login({ email, password });
+      navigate({ to: '/' });
     } catch (error) {
       // Error is already handled in the auth provider
       console.error('Login failed', error);
+    }
+  };
+
+  // Handle Google login
+  const handleGoogleLogin = async () => {
+    try {
+      // Request Google sign-in and get the token
+      const token = await signInWithGoogle();
+      console.log('Google authentication successful, processing token...');
+      
+      // Send the token to our backend via the auth provider
+      await loginWithGoogle(token);
+      navigate({ to: '/' });
+    } catch (error) {
+      console.error('Google login failed', error);
+      // We're not setting error message here since it will be handled in the auth provider
     }
   };
 
@@ -97,14 +125,23 @@ function LoginPage() {
                 'Login'
               )}
             </Button>
+
+            <div className={styles.formDivider}>
+              <span>Or</span>
+            </div>
+
+            <div className={styles.socialLoginContainer}>
+              <GoogleButton
+                onClick={handleGoogleLogin}
+                disabled={loading}
+              />
+            </div>
           </Form>
         </CardBody>
         
         <CardFooter>
           <div className={styles.authLinks}>
-            <p>
-              Don't have an account? <Link to="/auth/register">Register</Link>
-            </p>
+            Don't have an account? <Link to="/auth/register">Register</Link>
           </div>
         </CardFooter>
       </Card>

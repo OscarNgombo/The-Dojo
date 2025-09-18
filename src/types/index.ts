@@ -37,6 +37,10 @@ export interface RegisterCredentials {
   password: string;
 }
 
+export interface GoogleAuthCredentials {
+  token: string;
+}
+
 // Subject related types
 export interface Subject {
   id: string;

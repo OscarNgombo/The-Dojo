@@ -1,7 +1,6 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanstackDevtools } from '@tanstack/react-devtools'
-import Header from '../components/Header'
 import { AppProvider, AuthProvider, ToastProvider } from '../providers'
 import { Toast } from '@/shared/components/ui/Toast'
 

@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../providers';
 import { 
   Card, 
@@ -9,19 +9,29 @@ import {
   FormGroup,
   Input,
   Button,
-  Spinner
+  Spinner,
+  GoogleButton
 } from '../../shared/components/ui';
 import { Link } from '@tanstack/react-router';
 import styles from './auth.module.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { initializeGoogleAuth, signInWithGoogle } from '../../utils/googleAuth';
 
 export const Route = createFileRoute('/auth/register')({
   component: RegisterPage,
 });
 
 function RegisterPage() {
-  const { register, error, loading } = useAuth();
+  const { register, loginWithGoogle, error, loading } = useAuth();
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  // Initialize Google Auth when component mounts
+  useEffect(() => {
+    initializeGoogleAuth().catch(error => {
+      console.error('Failed to initialize Google Auth:', error);
+    });
+  }, []);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -46,9 +56,31 @@ function RegisterPage() {
     
     try {
       await register({ name, email, password });
+      navigate({ to: '/' });
     } catch (error) {
       // Error is already handled in the auth provider
       console.error('Registration failed', error);
+    }
+  };
+
+  // Handle Google signup
+  const handleGoogleSignup = async () => {
+    try {
+      // Request Google sign-in and get the token
+      const token = await signInWithGoogle();
+      console.log('Google authentication successful, processing token...');
+      
+      // Send the token to our backend via the auth provider
+      await loginWithGoogle(token);
+      navigate({ to: '/' });
+    } catch (error) {
+      console.error('Google signup failed', error);
+      // Add more detailed error handling for debugging
+      if (error instanceof Error) {
+        setPasswordError(`Google Sign-In failed: ${error.message}`);
+      } else {
+        setPasswordError('Google Sign-In failed for unknown reason');
+      }
     }
   };
 
@@ -140,14 +172,24 @@ function RegisterPage() {
                 'Register'
               )}
             </Button>
+
+            <div className={styles.formDivider}>
+              <span>Or</span>
+            </div>
+
+            <div className={styles.socialLoginContainer}>
+              <GoogleButton
+                onClick={handleGoogleSignup}
+                disabled={loading}
+                label="Sign up with Google"
+              />
+            </div>
           </Form>
         </CardBody>
         
         <CardFooter>
           <div className={styles.authLinks}>
-            <p>
-              Already have an account? <Link to="/auth/login">Login</Link>
-            </p>
+            Already have an account? <Link to="/auth/login">Login</Link>
           </div>
         </CardFooter>
       </Card>

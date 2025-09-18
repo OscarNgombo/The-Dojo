@@ -10,4 +10,9 @@ export default defineConfig({
       '@': new URL('./src', import.meta.url).pathname,
     },
   },
+  server: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
+  },
 })
