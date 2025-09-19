@@ -1,6 +1,8 @@
 import { AppProvider, useApp } from './AppProvider';
 import { AuthProvider, useAuth } from './AuthProvider';
 import { ToastProvider, useToast } from './ToastProvider';
+import { UsersProvider, useUsers } from './UsersProvider';
+import { AdminLayoutProvider, useAdminLayout } from './AdminLayoutProvider';
 
 // Export all providers and hooks
 export {
@@ -9,5 +11,9 @@ export {
   AuthProvider,
   useAuth,
   ToastProvider,
-  useToast
+  useToast,
+  UsersProvider,
+  useUsers,
+  AdminLayoutProvider,
+  useAdminLayout,
 };

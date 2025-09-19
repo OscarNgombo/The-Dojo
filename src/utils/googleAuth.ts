@@ -24,36 +24,40 @@ const GOOGLE_CLIENT_ID =
 export const initializeGoogleAuth = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     // Check if the script is already added
-    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+    if (
+      document.querySelector(
+        'script[src="https://accounts.google.com/gsi/client"]',
+      )
+    ) {
       // If script is already present, just wait for window.google
       const interval = setInterval(() => {
         if (window.google?.accounts?.id) {
-          clearInterval(interval);
-          resolve();
+          clearInterval(interval)
+          resolve()
         }
-      }, 100);
-      return;
+      }, 100)
+      return
     }
 
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
+    const script = document.createElement('script')
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.defer = true
     script.onload = () => {
       // Poll for the google object to be ready
       const interval = setInterval(() => {
         if (window.google?.accounts?.id) {
-          clearInterval(interval);
-          resolve();
+          clearInterval(interval)
+          resolve()
         }
-      }, 100);
-    };
+      }, 100)
+    }
     script.onerror = () => {
-      reject(new Error('Failed to load Google Identity Services script.'));
-    };
-    document.head.appendChild(script);
-  });
-};
+      reject(new Error('Failed to load Google Identity Services script.'))
+    }
+    document.head.appendChild(script)
+  })
+}
 
 /**
  * Prompt the user to sign in with Google
@@ -160,18 +164,6 @@ export const debugGoogleSignIn = (): void => {
     console.error('Google Identity Services not loaded')
     return
   }
-
-  console.log('Google Identity Services is loaded')
-
-  // Check if the client ID is valid
-  console.log('Using Client ID:', GOOGLE_CLIENT_ID)
-
-  // Try to retrieve the stored Google credentials
-  const storedCredential = localStorage.getItem('g_state')
-  console.log(
-    'Stored Google credential state:',
-    storedCredential ? 'Present' : 'Not found',
-  )
 }
 
 // Add type declaration for window object to include Google Identity Services

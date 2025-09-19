@@ -1,37 +1,48 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useAuth } from '../../providers'
-import { Spinner, Card, CardBody } from '../../shared/components/ui'
+import { UsersIcon, ReportsIcon, SettingsIcon } from '../../components/Icons'
+import styles from '../../components/layout/AdminLayout.module.css'
 
 export const Route = createFileRoute('/admin/')({
-  component: AdminPage,
+  component: AdminDashboardPage,
 })
 
-function AdminPage() {
-  const { user, isAuthenticated, loading } = useAuth()
-
-  // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <Spinner size="large" color="primary" />
-      </div>
-    )
-  }
-
-  // Check if user is authenticated and has admin role
-  if (!isAuthenticated || user?.role !== 'admin') {
-    window.location.href = '/'
-    return null
-  }
-
+function AdminDashboardPage() {
   return (
-    <div style={{ padding: '20px' }}>
-      <Card>
-        <CardBody>
-          <h1>Admin Dashboard</h1>
-          <p>Welcome to the admin dashboard. Use the navigation to manage trainees, subjects, and tasks.</p>
-        </CardBody>
-      </Card>
+    <div className={styles.welcomeContent}>
+      <h1>Admin Dashboard</h1>
+      <p>
+        Welcome to The Dojo admin dashboard. Use the navigation menu to manage
+        users, subjects, and tasks.
+      </p>
+      <div className={styles.quickStats}>
+        <div className={styles.statCard}>
+          <span className={styles.statIcon} style={{ color: '#2563EB' }}>
+            <UsersIcon />
+          </span>
+          <div>
+            <h3>User Management</h3>
+            <p>Manage all users in the system</p>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statIcon} style={{ color: '#7C3AED' }}>
+            <ReportsIcon />
+          </span>
+          <div>
+            <h3>Subjects</h3>
+            <p>Manage training subjects and curriculum</p>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statIcon} style={{ color: '#EA580C' }}>
+            <SettingsIcon />
+          </span>
+          <div>
+            <h3>Tasks</h3>
+            <p>Create and manage assignments</p>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

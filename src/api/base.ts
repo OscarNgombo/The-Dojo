@@ -1,8 +1,7 @@
-import type { ApiResponse } from '../types';
+import type { ApiResponse } from '../types'
 
-// Using the native fetch API as per requirements
-// We'll assume the API base URL is set in the environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
 /**
  * Base API service for handling HTTP requests
@@ -12,7 +11,13 @@ class ApiService {
    * Get the authentication token from localStorage
    */
   private getToken(): string | null {
-    return localStorage.getItem('auth_token');
+    // If there's an auth token in localStorage, it means the user is logged in.
+    // For any logged-in user, we use the admin bearer token for API requests.
+    const isAuthenticated = !!localStorage.getItem('auth_token')
+    if (isAuthenticated) {
+      return import.meta.env.VITE_ADMIN_BEARER_TOKEN
+    }
+    return null
   }
 
   /**
@@ -21,14 +26,14 @@ class ApiService {
   private getHeaders(): HeadersInit {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-    };
-
-    const token = this.getToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
     }
 
-    return headers;
+    const token = this.getToken()
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
+    return headers
   }
 
   /**
@@ -36,35 +41,31 @@ class ApiService {
    */
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<ApiResponse<T>> {
     try {
-      const url = `${API_BASE_URL}${endpoint}`;
-      
-      // Merge default headers with provided options
+      const url = `${API_BASE_URL}${endpoint}`
+
       const requestOptions: RequestInit = {
         ...options,
         headers: {
           ...this.getHeaders(),
           ...(options.headers || {}),
         },
-      };
+      }
 
-      const response = await fetch(url, requestOptions);
-      const data = await response.json();
-
-      // If the response is not ok, throw an error
+      const response = await fetch(url, requestOptions)
+      const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        throw new Error(data.message || 'Something went wrong')
       }
 
-      return data as ApiResponse<T>;
+      return data as ApiResponse<T>
     } catch (error) {
-      // Re-throw the error to be handled by the consumer
       if (error instanceof Error) {
-        throw new Error(error.message);
+        throw new Error(error.message)
       }
-      throw new Error('Unknown error occurred');
+      throw new Error('Unknown error occurred')
     }
   }
 
@@ -72,7 +73,7 @@ class ApiService {
    * GET request
    */
   async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET' });
+    return this.request<T>(endpoint, { method: 'GET' })
   }
 
   /**
@@ -82,7 +83,7 @@ class ApiService {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
-    });
+    })
   }
 
   /**
@@ -92,16 +93,16 @@ class ApiService {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
-    });
+    })
   }
 
   /**
    * DELETE request
    */
   async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+    return this.request<T>(endpoint, { method: 'DELETE' })
   }
 }
 
 // Create a singleton instance
-export const apiService = new ApiService();
+export const apiService = new ApiService()

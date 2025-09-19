@@ -1,0 +1,106 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  line-height: 1.5;
+}
+
+/* Badge variants */
+.primary {
+  background-color: var(--info-color);
+  color: #fff;
+}
+
+.secondary {
+  background-color: var(--light-color);
+  color: var(--secondary-color);
+}
+
+.success {
+  background-color: var(--success-color);
+  color: #ffffff;
+}
+
+.danger {
+  background-color: var(--danger-color);
+  color: #ffffff;
+}
+
+.warning {
+  background-color: var(--warning-color);
+  color: #ffffff;
+}
+
+.info {
+  background-color: var(--info-color);
+  color: #ffffff;
+}
+
+/* Badge sizes */
+.small {
+  font-size: 10px;
+  padding: 1px 6px;
+}
+
+.medium {
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.large {
+  font-size: 14px;
+  padding: 3px 10px;
+}
+
+/* Badge with dot */
+.withDot {
+  padding-left: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.primary .dot {
+  background-color: #fff;
+}
+
+.secondary .dot {
+  background-color: var(--secondary-color);
+}
+
+.success .dot {
+  background-color: #ffffff;
+}
+
+.danger .dot {
+  background-color: #ffffff;
+}
+
+.warning .dot {
+  background-color: #ffffff;
+}
+
+.info .dot {
+  background-color: #ffffff;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 576px) {
+  .badge {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+  
+  .large {
+    font-size: 12px;
+    padding: 2px 8px;
+  }
+}

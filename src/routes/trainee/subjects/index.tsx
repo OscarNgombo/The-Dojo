@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useAuth } from '../../../providers'
-import { Spinner, Card, CardBody } from '../../../shared/components/ui'
+import { Spinner, Card, CardBody } from '../../../components/ui'
 
 export const Route = createFileRoute('/trainee/subjects/')({
   component: TraineeSubjectsPage,
@@ -12,7 +12,14 @@ function TraineeSubjectsPage() {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '80vh',
+        }}
+      >
         <Spinner size="large" color="primary" />
       </div>
     )
@@ -25,7 +32,7 @@ function TraineeSubjectsPage() {
   }
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '1rem' }}>
       <Card>
         <CardBody>
           <h1>My Subjects</h1>

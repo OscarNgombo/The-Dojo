@@ -1,0 +1,94 @@
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.label {
+  font-size: var(--small-font-size);
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--dark-color);
+}
+
+.input {
+  padding: var(--input-padding);
+  border-radius: var(--input-border-radius);
+  border: 1px solid var(--border-color);
+  font-size: var(--input-font-size);
+  transition: var(--transition);
+  width: 100%;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--input-focus-border-color);
+  box-shadow: var(--input-focus-box-shadow);
+}
+
+.input:disabled {
+  background-color: var(--light-color);
+  cursor: var(--disabled-cursor);
+  opacity: var(--disabled-opacity);
+}
+
+/* Input variants */
+.default {
+  background-color: #ffffff;
+}
+
+.filled {
+  background-color: var(--light-color);
+}
+
+/* Input sizes */
+.small {
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.medium {
+  padding: 10px 12px;
+  font-size: 16px;
+}
+
+.large {
+  padding: 12px 16px;
+  font-size: 18px;
+}
+
+/* Error state */
+.error {
+  border-color: var(--danger-color);
+}
+
+.error:focus {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.errorMessage {
+  color: var(--danger-color);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Helper text */
+.helperText {
+  font-size: 12px;
+  color: var(--secondary-color);
+  margin-top: 4px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 576px) {
+  .input {
+    font-size: 14px;
+  }
+  
+  .large {
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+}

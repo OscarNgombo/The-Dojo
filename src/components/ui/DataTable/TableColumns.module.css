@@ -1,0 +1,8 @@
+.tableHeader th {
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
+}

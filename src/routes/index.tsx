@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../providers'
-import { Spinner, Card, CardBody, Button } from '../shared/components/ui'
-import { useEffect } from 'react';
+import { Spinner, Card, CardBody, Button } from '../components/ui'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -9,15 +9,14 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const { user, isAuthenticated, loading } = useAuth()
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate({ to: '/auth/login' });
+      navigate({ to: '/auth/login' })
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading, navigate])
 
-  // Show loading spinner while checking authentication
   if (loading || !isAuthenticated) {
     return (
       <div
@@ -33,18 +32,20 @@ function HomePage() {
     )
   }
 
-  // If user is authenticated, show appropriate landing page based on role
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '1rem' }}>
       {user && (
         <Card>
           <CardBody>
-            <h1>Welcome to The Dojo, {user.name}!</h1>
+            <h1 style={{ color: 'blue', fontWeight: 'bold' }}>
+              Welcome to The Dojo, {user.name}!
+            </h1>
 
             {user.role === 'admin' ? (
               <div>
+                <br />
                 <h2>Admin Dashboard</h2>
-                <p>You have access to manage trainees, subjects, and tasks.</p>
+                <p>You can manage users, subjects, and tasks.</p>
                 <div
                   style={{
                     display: 'flex',
@@ -60,9 +61,11 @@ function HomePage() {
                     Admin Dashboard
                   </Button>
                 </div>
+                <Outlet />
               </div>
             ) : (
               <div>
+                <br />
                 <h2>Trainee Dashboard</h2>
                 <p>You can view your assigned subjects and tasks.</p>
                 <div
@@ -79,6 +82,8 @@ function HomePage() {
                   >
                     Trainee Dashboard
                   </Button>
+
+                  <Outlet />
                 </div>
               </div>
             )}

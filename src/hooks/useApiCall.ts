@@ -26,12 +26,29 @@ export const useApiCall = <T>() => {
 
       try {
         const response = await apiCall();
-        if (response.success) {
-          setState({ data: response.data, loading: false, error: null });
-          return response.data;
-        } else {
+
+        // If the API explicitly signals failure, throw an error.
+        if (response.success === false) {
           throw new Error(response.message || 'API call failed');
         }
+
+        // Extract data from various possible response structures.
+        const responseData = (response as any).user || (response as any).records || response.data;
+
+        // If we have data, the call was successful.
+        if (responseData) {
+          setState({ data: responseData, loading: false, error: null });
+          return responseData;
+        }
+
+        // If there's no data but the call was explicitly successful (e.g., a successful DELETE request)
+        if (response.success === true) {
+          setState({ data: null, loading: false, error: null });
+          return null;
+        }
+
+        // If none of the above, the response is unexpected.
+        throw new Error(response.message || 'API call failed: Unexpected response structure');
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';

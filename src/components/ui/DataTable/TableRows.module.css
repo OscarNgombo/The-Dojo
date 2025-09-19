@@ -1,0 +1,22 @@
+.tableRow td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--dark-color);
+}
+
+.tableRow:nth-of-type(even) {
+  background-color: var(--light-color);
+}
+
+.tableRow:hover {
+  background-color: var(--border-color);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.actionsCell {
+  display: flex;
+  gap: 10px;
+}

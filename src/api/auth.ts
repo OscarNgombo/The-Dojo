@@ -34,8 +34,8 @@ export const authService = {
     })
   },
 
-  getCurrentUser: async (): Promise<ApiResponse<User>> => {
-    return apiService.get<User>('/auth/me')
+  getCurrentUser: () => {
+    return apiService.get<User>('/admin/users/profile')
   },
 
   logout: (): void => {

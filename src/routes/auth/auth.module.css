@@ -3,8 +3,8 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 20px;
-  background-color: #f9fafb;
+  padding: 1rem;
+  background-color: var(--light-color);
 }
 
 .authCard {
@@ -15,14 +15,14 @@
 .authTitle {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--dark-color);
   margin: 0;
   text-align: center;
 }
 
 .authError {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger-color);
   padding: 10px;
   border-radius: 6px;
   margin-bottom: 16px;
@@ -33,11 +33,11 @@
   width: 100%;
   text-align: center;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--secondary-color);
 }
 
 .authLinks a {
-  color: #3498db;
+  color: var(--primary-color);
   text-decoration: none;
   font-weight: 500;
 }
@@ -57,12 +57,12 @@
 .formDivider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .formDivider span {
   padding: 0 10px;
-  color: #6b7280;
+  color: var(--secondary-color);
   font-size: 14px;
 }
 
@@ -74,14 +74,14 @@
 @media (max-width: 576px) {
   .authContainer {
     padding: 16px;
-    background-color: #ffffff;
+  background-color: #ffffff;
   }
 
   .authCard {
     box-shadow: none;
     border: none;
   }
-  
+
   .authTitle {
     font-size: 1.25rem;
   }

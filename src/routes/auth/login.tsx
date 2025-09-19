@@ -11,7 +11,7 @@ import {
   Button,
   Spinner,
   GoogleButton
-} from '../../shared/components/ui';
+} from '../../components/ui';
 import { Link } from '@tanstack/react-router';
 import styles from './auth.module.css';
 import { useEffect } from 'react';
