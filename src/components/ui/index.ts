@@ -11,3 +11,7 @@ export { RoleToggle } from './RoleToggle';
 export { RowActions } from './RowActions';
 export { Spinner } from './Spinner';
 export { Toast } from './Toast';
+export { Modal } from './Modal';
+export { ActiveBadgeGroup } from './Badge/ActiveBadge';
+export { Pill } from './Pill/Pill';
+export { AccessDenied } from './AccessDenied';

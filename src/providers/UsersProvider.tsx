@@ -4,6 +4,7 @@ import {
   useState,
   useMemo,
   type ReactNode,
+  useRef,
 } from 'react'
 import { usersApi } from '../api'
 import type { User, PaginatedResponse } from '../types'
@@ -17,14 +18,20 @@ interface UsersState {
   totalCount: number
 }
 
+interface FetchUsersOptions {
+  role?: 'admin' | 'trainee'
+  status?: 'approved' | 'pending' | 'rejected'
+  search?: string
+  sortField?: 'name' | 'email' | 'created_at'
+  sortDirection?: 'asc' | 'desc'
+}
+
 interface UsersActions {
   fetchUsers: (
     page: number,
     pageSize?: number,
-    role?: 'admin' | 'trainee',
-    status?: 'approved' | 'pending' | 'rejected',
+    options?: FetchUsersOptions,
   ) => Promise<void>
-  fetchAllUsers: (page: number, pageSize?: number) => Promise<void>
   updateUserStatus: (
     userId: string,
     status: 'approved' | 'pending' | 'rejected',
@@ -51,39 +58,24 @@ const initialState: UsersState = {
 
 export const UsersProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<UsersState>(initialState)
+  // Persist the last successful query so that mutation operations can re-fetch with same parameters
+  const lastQueryRef = useRef<{ page: number; pageSize: number; options?: FetchUsersOptions }>({ page: 1, pageSize: 10 })
 
   const actions = useMemo<UsersActions>(
     () => ({
-      fetchUsers: async (page, pageSize = 10, role, status) => {
+      fetchUsers: async (page, pageSize = 10, options) => {
         setState((prev) => ({ ...prev, loading: true, error: null }))
         try {
           const response = (await usersApi.getUsers(
             page,
             pageSize,
-            role,
-            status,
+            options?.role,
+            options?.status,
+            options?.search,
+            options?.sortField,
+            options?.sortDirection,
           )) as unknown as PaginatedResponse<User>
-          setState(prev => ({
-            ...prev,
-            loading: false,
-            users: response.records,
-            currentPage: response.current_page,
-            totalPages: response.last_page,
-            totalCount: response.total_count,
-          }))
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : 'An unknown error occurred'
-          setState((prev) => ({ ...prev, loading: false, error: errorMessage }))
-        }
-      },
-      fetchAllUsers: async (page, pageSize = 10) => {
-        setState((prev) => ({ ...prev, loading: true, error: null }))
-        try {
-          const response = (await usersApi.getUsers(
-            page,
-            pageSize,
-          )) as unknown as PaginatedResponse<User>
+          lastQueryRef.current = { page, pageSize, options }
           setState(prev => ({
             ...prev,
             loading: false,
@@ -101,21 +93,8 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       updateUserStatus: async (userId, status) => {
         try {
           await usersApi.updateUserStatus(userId, status)
-          // Re-fetch the current page after update
-          const currentPage = state.currentPage
-          setState((prev) => ({ ...prev, loading: true, error: null }))
-          const response = (await usersApi.getUsers(
-            currentPage,
-            10,
-          )) as unknown as PaginatedResponse<User>
-          setState(prev => ({
-            ...prev,
-            loading: false,
-            users: response.records,
-            currentPage: response.current_page,
-            totalPages: response.last_page,
-            totalCount: response.total_count,
-          }))
+          const { page, pageSize, options } = lastQueryRef.current
+          await actions.fetchUsers(page, pageSize, options)
         } catch (error) {
           console.error('Failed to update user status:', error)
         }
@@ -123,21 +102,8 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       updateUserRole: async (userId, role) => {
         try {
           await usersApi.updateUserRole(userId, role)
-          // Re-fetch the current page after update
-          const currentPage = state.currentPage
-          setState((prev) => ({ ...prev, loading: true, error: null }))
-          const response = (await usersApi.getUsers(
-            currentPage,
-            10,
-          )) as unknown as PaginatedResponse<User>
-          setState(prev => ({
-            ...prev,
-            loading: false,
-            users: response.records,
-            currentPage: response.current_page,
-            totalPages: response.last_page,
-            totalCount: response.total_count,
-          }))
+          const { page, pageSize, options } = lastQueryRef.current
+            await actions.fetchUsers(page, pageSize, options)
         } catch (error) {
           console.error('Failed to update user role:', error)
         }
@@ -145,27 +111,14 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       deleteUser: async (userId) => {
         try {
           await usersApi.deleteUser(userId)
-          // Re-fetch the current page after delete
-          const currentPage = state.currentPage
-          setState((prev) => ({ ...prev, loading: true, error: null }))
-          const response = (await usersApi.getUsers(
-            currentPage,
-            10,
-          )) as unknown as PaginatedResponse<User>
-          setState(prev => ({
-            ...prev,
-            loading: false,
-            users: response.records,
-            currentPage: response.current_page,
-            totalPages: response.last_page,
-            totalCount: response.total_count,
-          }))
+          const { page, pageSize, options } = lastQueryRef.current
+          await actions.fetchUsers(page, pageSize, options)
         } catch (error) {
           console.error('Failed to delete user:', error)
         }
       },
     }),
-    [], // Remove the dependency on state.currentPage to prevent re-creation
+    [], // static actions instance
   )
 
   const contextValue = useMemo(

@@ -1,53 +1,95 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { usersApi } from '../../../api'
 import type { User } from '../../../types'
-import {
-  Avatar,
-  Badge,
-  Button,
-  RoleToggle,
-  Spinner,
-} from '../../../components/ui'
+import { usersApi } from '../../../api'
+import { useRequireAdmin } from '../../../hooks/useAuthGuards'
+import { Avatar, Badge, Button, RoleToggle, Spinner, AccessDenied } from '../../../components/ui'
 import { formatDate } from '../../../utils/dateUtils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useToast } from '../../../providers'
 
-interface LoaderData {
-  user: User
-}
-
 export const Route = createFileRoute('/admin/users/$userId')({
-  loader: async ({ params }) => {
-    const { userId } = params
-    try {
-      const response = await usersApi.getUserById(userId)
-      // Possible shapes: { data: { user } }, { data: User }, or { user }
-      const raw = response as any
-      const data = raw.data ?? raw
-      const user: User | undefined =
-        data.user ?? data.user?.user ?? (data.id ? data : undefined)
-      if (!user) {
-        throw new Error('User not found')
-      }
-      return { user } as LoaderData
-    } catch (e) {
-      // Let the router bubble the error for ErrorBoundary (could customize later)
-      throw e
-    }
-  },
   component: UserDetailPage,
 })
 
 function UserDetailPage() {
-  const { user } = Route.useLoaderData() as LoaderData
+  // --- ALWAYS CALL HOOKS UNCONDITIONALLY AT TOP (fixes hook order warning) ---
+  const { loading, isAuthorized, isAuthenticated } = useRequireAdmin()
+  const { userId } = Route.useParams()
   const navigate = useNavigate()
   const { addToast } = useToast()
-  const [currentUser, setCurrentUser] = useState<User>(user)
+
+  // Data fetching state
+  const [fetchedUser, setFetchedUser] = useState<User | null>(null)
+  const [fetching, setFetching] = useState<boolean>(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+
+  // Editable / UI state derived from fetched user
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [isUpdatingRole, setIsUpdatingRole] = useState(false)
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
+  // Fetch user when authorized
+  useEffect(() => {
+    if (!isAuthorized || !isAuthenticated) return
+    let cancelled = false
+    const run = async () => {
+      setFetching(true)
+      setFetchError(null)
+      try {
+        const response = await usersApi.getUserById(userId)
+        const raw: any = response
+        const data = raw.data ?? raw
+        const u: User | undefined =
+          data.user ?? data.user?.user ?? (data.id ? data : undefined)
+        if (!u) throw new Error('User not found')
+        if (!cancelled) {
+          setFetchedUser(u)
+        }
+      } catch (e: any) {
+        if (!cancelled) setFetchError(e.message || 'Failed to load user')
+      } finally {
+        if (!cancelled) setFetching(false)
+      }
+    }
+    run()
+    return () => {
+      cancelled = true
+    }
+  }, [isAuthorized, isAuthenticated, userId])
+
+  // Initialize currentUser once fetched
+  useEffect(() => {
+    if (fetchedUser && !currentUser) {
+      setCurrentUser(fetchedUser)
+    }
+  }, [fetchedUser, currentUser])
+
+  // Early rendering branches AFTER all hooks declared
+  if (!isAuthenticated || !isAuthorized) {
+    return <AccessDenied />
+  }
+
+  if (loading || fetching || (!fetchedUser && !fetchError)) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <Spinner size="large" color="primary" />
+      </div>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div style={{ padding: '2rem', color: 'red' }}>Error: {fetchError}</div>
+    )
+  }
+
+  if (!currentUser) {
+    // Safety fallback (should be covered by spinner normally)
+    return null
+  }
+
   const updateRole = async (newRole: 'admin' | 'trainee') => {
-    if (isUpdatingRole) return
+    if (isUpdatingRole || !currentUser) return
     setIsUpdatingRole(true)
     const prev = currentUser
     setCurrentUser({ ...currentUser, role: newRole })
@@ -63,7 +105,7 @@ function UserDetailPage() {
   }
 
   const updateStatus = async (status: 'approved' | 'rejected') => {
-    if (isUpdatingStatus) return
+    if (isUpdatingStatus || !currentUser) return
     setIsUpdatingStatus(true)
     const prev = currentUser
     setCurrentUser({ ...currentUser, status })

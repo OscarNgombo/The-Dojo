@@ -1,47 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useAuth } from '../../providers'
-import { Spinner, Card, CardBody } from '../../components/ui'
+import { useRequireTrainee } from '../../hooks/useAuthGuards'
+import { Spinner, AccessDenied } from '../../components/ui'
 
 export const Route = createFileRoute('/trainee/')({
-  component: TraineePage,
+  component: RouteComponent,
 })
 
-function TraineePage() {
-  const { user, isAuthenticated, loading } = useAuth()
-
-  // Show loading spinner while checking authentication
+function RouteComponent() {
+  const { loading, isAuthorized, isAuthenticated } = useRequireTrainee()
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '80vh',
-        }}
-      >
+      <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'80vh'}}>
         <Spinner size="large" color="primary" />
       </div>
     )
   }
-
-  // Check if user is authenticated and has trainee role
-  if (!isAuthenticated || user?.role !== 'trainee') {
-    window.location.href = '/'
-    return null
+  if (!isAuthenticated || !isAuthorized) {
+    return <AccessDenied />
   }
-
-  return (
-    <div style={{ padding: '1rem' }}>
-      <Card>
-        <CardBody>
-          <h1>Trainee Dashboard</h1>
-          <p>
-            Welcome to your trainee dashboard. Here you can view your assigned
-            subjects and tasks.
-          </p>
-        </CardBody>
-      </Card>
-    </div>
-  )
+  return <div>Hello "/trainee/"!</div>
 }

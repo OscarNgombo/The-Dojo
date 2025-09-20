@@ -13,6 +13,25 @@
   gap: 10px;
 }
 
+/* Animation helpers */
+.fadeSlideIn {
+  animation: fadeSlideIn 160ms ease-out;
+}
+
+.fadeSlideOut {
+  animation: fadeSlideOut 140ms ease-in forwards;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-4px); }
+}
+
 .actionIcon {
   cursor: pointer;
   color: var(--secondary-color);
@@ -21,4 +40,27 @@
 
 .actionIcon:hover {
   color: var(--dark-color);
+}
+
+.rightActions button {
+  position: relative;
+  border-radius: 6px;
+  transition: var(--transition);
+  color: var(--primary-color); /* ensure visible icon color */
+}
+
+.rightActions button:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--dark-color);
+}
+
+.rightActions button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Ensure SVG inside buttons always inherits color */
+.rightActions button svg {
+  fill: currentColor;
+  stroke: currentColor;
 }

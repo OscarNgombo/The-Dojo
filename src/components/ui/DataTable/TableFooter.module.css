@@ -43,6 +43,7 @@
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: #ffffff;
+  fill: #ffffff;
 }
 
 .pageButton.active:hover {

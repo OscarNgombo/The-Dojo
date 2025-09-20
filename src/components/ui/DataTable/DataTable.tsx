@@ -11,12 +11,14 @@ export const DataTable = <T extends object>({
   rowActions,
   isClickable = false,
   onRowClick,
-  leftActions,
-  customRightAction,
-  showDefaultRightActions = true,
+  showSortButton,
+  showFilterButton,
+  filterActive,
+  sortActive,
   onSort,
   onFilter,
   onRefresh,
+  rightBadges,
   showFooter = true,
   totalPages,
   currentPage,
@@ -27,9 +29,11 @@ export const DataTable = <T extends object>({
   return (
     <div className={styles.dataTableWrapper}>
       <TableActions
-        leftActions={leftActions}
-        customRightAction={customRightAction}
-        showDefaultRightActions={showDefaultRightActions}
+        rightBadges={rightBadges}
+        showSortButton={showSortButton}
+        showFilterButton={showFilterButton}
+        filterActive={filterActive}
+        sortActive={sortActive}
         onSort={onSort}
         onFilter={onFilter}
         onRefresh={onRefresh}

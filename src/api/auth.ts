@@ -34,8 +34,20 @@ export const authService = {
     })
   },
 
-  getCurrentUser: () => {
-    return apiService.get<User>('/admin/users/profile')
+  /**
+   * Fetch current user profile. Backend returns shape:
+   * { user: { ...User }, message: string }
+   * We unwrap and return a consistent { user: User } object.
+   */
+  getCurrentUser: async (): Promise<{ user: User }> => {
+    const raw = await apiService.get<{ user: User }>('/admin/users/profile')
+    // Support either ApiResponse<T> with data or plain object
+    const container: any = (raw as any).data || raw
+    const user = container.user
+    if (!user) {
+      throw new Error('Profile response missing user field')
+    }
+    return { user }
   },
 
   logout: (): void => {

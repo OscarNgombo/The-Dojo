@@ -1,14 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useAuth } from '../providers'
-import { Spinner } from '../components/ui'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { Spinner, AccessDenied } from '../components/ui'
 import { AdminLayout } from '../components/layout/AdminLayout'
+import { useAuth } from '../providers'
 
 export const Route = createFileRoute('/admin')({
-  component: AdminLayoutWrapper,
+  component: AdminGate,
 })
 
-function AdminLayoutWrapper() {
+function AdminGate() {
   const { user, isAuthenticated, loading } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (loading) return
+    if (!isAuthenticated) {
+      navigate({ to: '/auth/login', replace: true })
+    }
+  }, [loading, isAuthenticated, navigate])
 
   if (loading) {
     return (
@@ -25,9 +34,12 @@ function AdminLayoutWrapper() {
     )
   }
 
-  if (!isAuthenticated || user?.role !== 'admin') {
-    window.location.href = '/auth/login'
+  if (!isAuthenticated) {
     return null
+  }
+
+  if (user?.role !== 'admin') {
+    return <AccessDenied />
   }
 
   return <AdminLayout />

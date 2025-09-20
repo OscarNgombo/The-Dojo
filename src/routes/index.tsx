@@ -1,23 +1,33 @@
-import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
-import { useAuth } from '../providers'
-import { Spinner, Card, CardBody, Button } from '../components/ui'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { Spinner } from '../components/ui'
+import { useAuth } from '../providers'
+import { roleTarget } from '../utils/roleRedirect'
 
+/**
+ * Root route: purely a redirect hub once auth status is known.
+ * We intentionally do NOT use beforeLoad because it runs only once
+ * and would capture a stale loadingAuth=true state, causing the
+ * component to remain mounted showing a spinner with no redirect.
+ * Instead, we wait for loadingAuth to settle, then navigate via effect.
+ */
 export const Route = createFileRoute('/')({
-  component: HomePage,
+  component: HomeRedirect,
 })
 
-function HomePage() {
-  const { user, isAuthenticated, loading } = useAuth()
+function HomeRedirect() {
+  // Use AuthProvider (reactive) instead of mutable router context
+  const { user, isAuthenticated, loading: loadingAuth } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      navigate({ to: '/auth/login' })
-    }
-  }, [isAuthenticated, loading, navigate])
+    if (loadingAuth) return
+    const target = roleTarget(isAuthenticated ? user : null)
+    navigate({ to: target, replace: true })
+  }, [loadingAuth, isAuthenticated, user, navigate])
 
-  if (loading || !isAuthenticated) {
+  // While determining auth state, show centered spinner.
+  if (loadingAuth) {
     return (
       <div
         style={{
@@ -32,64 +42,6 @@ function HomePage() {
     )
   }
 
-  return (
-    <div style={{ padding: '1rem' }}>
-      {user && (
-        <Card>
-          <CardBody>
-            <h1 style={{ color: 'blue', fontWeight: 'bold' }}>
-              Welcome to The Dojo, {user.name}!
-            </h1>
-
-            {user.role === 'admin' ? (
-              <div>
-                <br />
-                <h2>Admin Dashboard</h2>
-                <p>You can manage users, subjects, and tasks.</p>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '10px',
-                    marginTop: '20px',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <Button
-                    variant="primary"
-                    onClick={() => navigate({ to: '/admin' })}
-                  >
-                    Admin Dashboard
-                  </Button>
-                </div>
-                <Outlet />
-              </div>
-            ) : (
-              <div>
-                <br />
-                <h2>Trainee Dashboard</h2>
-                <p>You can view your assigned subjects and tasks.</p>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '10px',
-                    marginTop: '20px',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <Button
-                    variant="primary"
-                    onClick={() => navigate({ to: '/trainee' })}
-                  >
-                    Trainee Dashboard
-                  </Button>
-
-                  <Outlet />
-                </div>
-              </div>
-            )}
-          </CardBody>
-        </Card>
-      )}
-    </div>
-  )
+  // Brief empty placeholder while the effect performs navigation.
+  return null
 }

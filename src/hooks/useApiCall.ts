@@ -33,7 +33,12 @@ export const useApiCall = <T>() => {
         }
 
         // Extract data from various possible response structures.
-        const responseData = (response as any).user || (response as any).records || response.data;
+        const responseData =
+          (response as any).user ??
+          (response as any).data?.user ??
+          (response as any).records ??
+          (response as any).data ??
+          null;
 
         // If we have data, the call was successful.
         if (responseData) {

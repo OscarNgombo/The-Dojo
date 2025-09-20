@@ -3,6 +3,11 @@
   display: inline-block;
 }
 
+.rowActions button svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
 .dropdown {
   position: absolute;
   right: 0;

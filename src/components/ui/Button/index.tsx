@@ -1,7 +1,6 @@
 import { type ButtonHTMLAttributes } from 'react'
 import styles from './Button.module.css'
 
-// Button variant types
 type ButtonVariant =
   | 'primary'
   | 'secondary'
@@ -11,7 +10,6 @@ type ButtonVariant =
   | 'icon'
 type ButtonSize = 'small' | 'medium' | 'large'
 
-// Button props
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: ButtonSize

@@ -7,6 +7,9 @@ import type { User, PaginatedResponse } from '../types'
  * @param pageSize - The number of users per page.
  * @param role - Optional role to filter users by.
  * @param status - Optional status to filter users by.
+ * @param search - Optional search term to filter users by name or email.
+ * @param sortField - Optional field to sort the users by.
+ * @param sortDirection - Optional direction to sort the users ('asc' or 'desc').
  * @returns A promise that resolves to a paginated response of users.
  */
 const getUsers = (
@@ -14,17 +17,19 @@ const getUsers = (
   pageSize: number,
   role?: 'admin' | 'trainee',
   status?: 'approved' | 'pending' | 'rejected',
+  search?: string,
+  sortField?: 'name' | 'email' | 'created_at',
+  sortDirection?: 'asc' | 'desc',
 ) => {
   const params = new URLSearchParams({
     page: String(page),
     pageSize: String(pageSize),
   })
-  if (role) {
-    params.append('role', role)
-  }
-  if (status) {
-    params.append('status', status)
-  }
+  if (role) params.append('role', role)
+  if (status) params.append('status', status)
+  if (search) params.append('search', search)
+  if (sortField) params.append('sortField', sortField)
+  if (sortDirection) params.append('sortDirection', sortDirection)
   return apiService.get<PaginatedResponse<User>>(
     `/admin/users?${params.toString()}`,
   )

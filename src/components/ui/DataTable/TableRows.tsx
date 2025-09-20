@@ -19,7 +19,7 @@ export const TableRows = <T extends object>({
 }: TableRowsProps<T>) => {
   return (
     <tbody>
-      {data.map(item => (
+      {data.map((item) => (
         <tr
           key={(item as any).id || Math.random()}
           className={`${styles.tableRow} ${
@@ -27,18 +27,16 @@ export const TableRows = <T extends object>({
           }`}
           onClick={() => isClickable && onRowClick?.(item)}
         >
-          {columns.map(column => (
+          {columns.map((column) => (
             <td key={(column.accessorKey || column.id) as string}>
               {column.cell
                 ? column.cell({ row: { original: item } })
-                : (item[
-                    column.accessorKey as keyof T
-                  ] as React.ReactNode)}
+                : (item[column.accessorKey as keyof T] as React.ReactNode)}
             </td>
           ))}
           {rowActions && (
             <td className={styles.actionsCell}>
-              {rowActions.map(action => (
+              {rowActions.map((action) => (
                 <Button
                   key={action.label}
                   variant="icon"

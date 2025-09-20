@@ -67,14 +67,27 @@
 .icon {
   background-color: transparent;
   border: none;
-  padding: 5px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 32px; /* increase hit area */
+  height: 32px;
+  color: var(--primary-color);
+  border-radius: 6px;
 }
 
-.icon:hover:not(:disabled) {
-  background-color: rgba(0, 0, 0, 0.05);
+.icon svg {
+  width: 24px;
+  height: 24px;
+  /* Ensure stroke-based icons inherit color */
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+.icon:hover:not(:disabled),
+.icon:focus-visible {
+  background-color: var(--primary-color-alpha-12);
 }
 
 /* Button sizes */
