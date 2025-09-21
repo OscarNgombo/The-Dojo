@@ -1,88 +1,80 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useAuth } from '../../providers';
-import { 
-  Card, 
-  CardHeader, 
-  CardBody, 
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useAuth } from '../../providers'
+import {
+  Card,
+  CardHeader,
+  CardBody,
   CardFooter,
   Form,
   FormGroup,
   Input,
   Button,
   Spinner,
-  GoogleButton
-} from '../../components/ui';
-import { Link } from '@tanstack/react-router';
-import styles from './auth.module.css';
-import { useState, useEffect } from 'react';
-import { initializeGoogleAuth, signInWithGoogle } from '../../utils/googleAuth';
+  GoogleButton,
+} from '../../components/ui'
+import { Link } from '@tanstack/react-router'
+import styles from './auth.module.css'
+import { useState, useEffect } from 'react'
+import { initializeGoogleAuth, signInWithGoogle } from '../../utils/googleAuth'
 
 export const Route = createFileRoute('/auth/register')({
   component: RegisterPage,
-});
+})
 
 function RegisterPage() {
-  const { register, loginWithGoogle, error, loading } = useAuth();
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const { register, loginWithGoogle, error, loading } = useAuth()
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
-  // Initialize Google Auth when component mounts
   useEffect(() => {
-    initializeGoogleAuth().catch(error => {
-      console.error('Failed to initialize Google Auth:', error);
-    });
-  }, []);
+    initializeGoogleAuth().catch((error) => {
+      console.error('Failed to initialize Google Auth:', error)
+    })
+  }, [])
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
-    
-    if (!name || !email || !password || !confirmPassword) {
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      setPasswordError('Passwords do not match');
-      return;
-    }
-    
-    setPasswordError(null);
-    
-    try {
-      await register({ name, email, password });
-      navigate({ to: '/' });
-    } catch (error) {
-      // Error is already handled in the auth provider
-      console.error('Registration failed', error);
-    }
-  };
+    e.preventDefault()
 
-  // Handle Google signup
+    const formData = new FormData(e.currentTarget)
+    const name = formData.get('name') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const confirmPassword = formData.get('confirmPassword') as string
+
+    if (!name || !email || !password || !confirmPassword) {
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setPasswordError('Passwords do not match')
+      return
+    }
+
+    setPasswordError(null)
+
+    try {
+      await register({ name, email, password })
+      navigate({ to: '/' })
+    } catch (error) {
+      console.error('Registration failed', error)
+    }
+  }
+
   const handleGoogleSignup = async () => {
     try {
-      // Request Google sign-in and get the token
-      const token = await signInWithGoogle();
-      console.log('Google authentication successful, processing token...');
-      
-      // Send the token to our backend via the auth provider
-      await loginWithGoogle(token);
-      navigate({ to: '/' });
+      const token = await signInWithGoogle()
+      console.log('Google authentication successful, processing token...')
+      await loginWithGoogle(token)
+      navigate({ to: '/' })
     } catch (error) {
-      console.error('Google signup failed', error);
-      // Add more detailed error handling for debugging
+      console.error('Google signup failed', error)
       if (error instanceof Error) {
-        setPasswordError(`Google Sign-In failed: ${error.message}`);
+        setPasswordError(`Google Sign-In failed: ${error.message}`)
       } else {
-        setPasswordError('Google Sign-In failed for unknown reason');
+        setPasswordError('Google Sign-In failed for unknown reason')
       }
     }
-  };
+  }
 
   return (
     <div className={styles.authContainer}>
@@ -90,52 +82,46 @@ function RegisterPage() {
         <CardHeader>
           <h1 className={styles.authTitle}>Join The Dojo</h1>
         </CardHeader>
-        
+
         <CardBody>
           <Form onSubmit={handleSubmit}>
-            {error && (
-              <div className={styles.authError}>
-                {error}
-              </div>
-            )}
-            
+            {error && <div className={styles.authError}>{error}</div>}
+
             {passwordError && (
-              <div className={styles.authError}>
-                {passwordError}
-              </div>
+              <div className={styles.authError}>{passwordError}</div>
             )}
-            
+
             <FormGroup>
               <Input
                 label="Full Name"
-                type="text" 
+                type="text"
                 id="name"
-                name="name" 
+                name="name"
                 required
                 disabled={loading}
                 placeholder="Enter your full name"
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Input
                 label="Email"
-                type="email" 
+                type="email"
                 id="email"
-                name="email" 
+                name="email"
                 required
                 autoComplete="email"
                 disabled={loading}
                 placeholder="Enter your email"
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Input
                 label="Password"
-                type="password" 
+                type="password"
                 id="password"
-                name="password" 
+                name="password"
                 required
                 autoComplete="new-password"
                 disabled={loading}
@@ -143,22 +129,21 @@ function RegisterPage() {
                 helperText="Password must be at least 6 characters"
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Input
                 label="Confirm Password"
-                type="password" 
+                type="password"
                 id="confirmPassword"
-                name="confirmPassword" 
+                name="confirmPassword"
                 required
                 autoComplete="new-password"
                 disabled={loading}
                 placeholder="Confirm your password"
               />
             </FormGroup>
-            
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               variant="primary"
               fullWidth
               disabled={loading}
@@ -172,7 +157,6 @@ function RegisterPage() {
                 'Register'
               )}
             </Button>
-
             <div className={styles.formDivider}>
               <span>Or</span>
             </div>
@@ -186,7 +170,6 @@ function RegisterPage() {
             </div>
           </Form>
         </CardBody>
-        
         <CardFooter>
           <div className={styles.authLinks}>
             Already have an account? <Link to="/auth/login">Login</Link>
@@ -194,5 +177,5 @@ function RegisterPage() {
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }

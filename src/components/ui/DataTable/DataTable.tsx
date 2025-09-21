@@ -25,6 +25,10 @@ export const DataTable = <T extends object>({
   onPageChange,
   totalCount,
   pageSize,
+  caption,
+  ariaLabel,
+  emptyState,
+  getRowId,
 }: DataTableProps<T>) => {
   return (
     <div className={styles.dataTableWrapper}>
@@ -38,7 +42,12 @@ export const DataTable = <T extends object>({
         onFilter={onFilter}
         onRefresh={onRefresh}
       />
-      <table className={styles.dataTable}>
+      <table
+        className={styles.dataTable}
+        aria-label={ariaLabel || caption || 'Data table'}
+        role="table"
+      >
+        {caption && <caption className={styles.caption}>{caption}</caption>}
         <TableColumns columns={columns} rowActions={rowActions} />
         <TableRows
           data={data}
@@ -46,6 +55,8 @@ export const DataTable = <T extends object>({
           rowActions={rowActions}
           isClickable={isClickable}
           onRowClick={onRowClick}
+          emptyState={emptyState}
+          getRowId={getRowId}
         />
       </table>
       {showFooter && totalPages && currentPage && onPageChange && (

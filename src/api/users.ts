@@ -1,26 +1,15 @@
 import { apiService } from './base'
 import type { User, PaginatedResponse } from '../types'
 
-/**
- * Fetches a paginated list of users.
- * @param page - The page number to retrieve.
- * @param pageSize - The number of users per page.
- * @param role - Optional role to filter users by.
- * @param status - Optional status to filter users by.
- * @param search - Optional search term to filter users by name or email.
- * @param sortField - Optional field to sort the users by.
- * @param sortDirection - Optional direction to sort the users ('asc' or 'desc').
- * @returns A promise that resolves to a paginated response of users.
- */
-const getUsers = (
+const getUsers = async (
   page: number,
   pageSize: number,
   role?: 'admin' | 'trainee',
   status?: 'approved' | 'pending' | 'rejected',
   search?: string,
-  sortField?: 'name' | 'email' | 'created_at',
+  sortField?: 'id' | 'name' | 'email' | 'created_at',
   sortDirection?: 'asc' | 'desc',
-) => {
+): Promise<PaginatedResponse<User>> => {
   const params = new URLSearchParams({
     page: String(page),
     pageSize: String(pageSize),
@@ -30,56 +19,56 @@ const getUsers = (
   if (search) params.append('search', search)
   if (sortField) params.append('sortField', sortField)
   if (sortDirection) params.append('sortDirection', sortDirection)
-  return apiService.get<PaginatedResponse<User>>(
+  const response = await apiService.get<PaginatedResponse<User>>(
     `/admin/users?${params.toString()}`,
   )
+  // Support both wrapped and unwrapped
+  const container: any = (response as any).data || response
+  if (!container) {
+    return {
+      domain: 'users',
+      current_page: page,
+      last_page: 1,
+      page_size: pageSize,
+      total_count: 0,
+      records: [],
+    }
+  }
+  return container as PaginatedResponse<User>
 }
 
-/**
- * Fetches a single user by their ID.
- * @param userId - The ID of the user to retrieve.
- * @returns A promise that resolves to the user object.
- */
-const getUserById = (userId: string) => {
-  return apiService.get<{ user: User }>(`/admin/users/${userId}`)
+const getUserById = async (userId: string) => {
+  const response = await apiService.get<{ user: User }>(
+    `/admin/users/${userId}`,
+  )
+  const container: any = (response as any).data || response
+  return container as { user: User }
 }
 
-/**
- * Updates the status of a user.
- * @param userId - The ID of the user to update.
- * @param status - The new status for the user.
- * @returns A promise that resolves when the status is updated.
- */
-const updateUserStatus = (
+const updateUserStatus = async (
   userId: string,
   status: 'approved' | 'pending' | 'rejected',
 ) => {
-  return apiService.put<{ user: User; message: string }>(
+  const response = await apiService.put<{ user: User; message: string }>(
     `/admin/users/${userId}/status`,
     { status },
   )
+  return (response as any).data || response
 }
 
-/**
- * Updates the role of a user.
- * @param userId - The ID of the user to update.
- * @param role - The new role for the user.
- * @returns A promise that resolves when the role is updated.
- */
-const updateUserRole = (userId: string, role: 'admin' | 'trainee') => {
-  return apiService.put<{ user: User; message: string }>(
+const updateUserRole = async (userId: string, role: 'admin' | 'trainee') => {
+  const response = await apiService.put<{ user: User; message: string }>(
     `/admin/users/${userId}/role`,
     { role },
   )
+  return (response as any).data || response
 }
 
-/**
- * Deletes a user by their ID.
- * @param userId - The ID of the user to delete.
- * @returns A promise that resolves when the user is deleted.
- */
-const deleteUser = (userId: string) => {
-  return apiService.delete<{ message: string }>(`/admin/users/${userId}`)
+const deleteUser = async (userId: string) => {
+  const response = await apiService.delete<{ message: string }>(
+    `/admin/users/${userId}`,
+  )
+  return (response as any).data || response
 }
 
 export const usersApi = {

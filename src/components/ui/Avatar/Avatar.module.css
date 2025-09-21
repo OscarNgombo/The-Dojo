@@ -15,7 +15,6 @@
   object-fit: cover;
 }
 
-/* Avatar sizes */
 .small {
   width: 32px;
   height: 32px;
@@ -40,13 +39,11 @@
   font-size: 24px;
 }
 
-/* Avatar with border */
 .withBorder {
   border: 2px solid #ffffff;
   box-shadow: var(--box-shadow);
 }
 
-/* Avatar status indicator */
 .status {
   position: relative;
 }
@@ -77,7 +74,6 @@
   background-color: var(--danger-color);
 }
 
-/* Mobile responsive adjustments */
 @media (max-width: 576px) {
   .large {
     width: 40px;

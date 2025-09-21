@@ -16,7 +16,6 @@
   cursor: not-allowed;
 }
 
-/* Button variants */
 .primary {
   background-color: var(--primary-color);
   color: #ffffff;
@@ -71,7 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px; /* increase hit area */
+  width: 32px; 
   height: 32px;
   color: var(--primary-color);
   border-radius: 6px;
@@ -80,7 +79,6 @@
 .icon svg {
   width: 24px;
   height: 24px;
-  /* Ensure stroke-based icons inherit color */
   stroke: currentColor;
   fill: currentColor;
 }
@@ -90,7 +88,6 @@
   background-color: var(--primary-color-alpha-12);
 }
 
-/* Button sizes */
 .small {
   padding: 8px 12px;
   font-size: var(--small-font-size);
@@ -110,7 +107,6 @@
   width: 100%;
 }
 
-/* Mobile responsive adjustments */
 @media (max-width: 576px) {
   .small {
     padding: 5px 10px;

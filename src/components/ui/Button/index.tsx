@@ -17,9 +17,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
 }
 
-/**
- * Button component with different variants and sizes
- */
 export const Button = ({
   variant = 'primary',
   size = 'medium',

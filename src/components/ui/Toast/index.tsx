@@ -54,9 +54,6 @@ const getToastIcon = (type: string) => {
   }
 };
 
-/**
- * Toast notification component that displays messages from the ToastProvider
- */
 export const Toast = () => {
   const { toasts, removeToast } = useToast();
 
@@ -65,11 +62,16 @@ export const Toast = () => {
   }
 
   return (
-    <div className={styles.toastContainer}>
-      {toasts.map((toast: Toast) => (
+    <div className={styles.toastContainer} role="region" aria-label="Notifications">
+      {toasts.map((toast: Toast) => {
+        const assertive = toast.type === 'error' || toast.type === 'warning'
+        return (
         <div
           key={toast.id}
           className={`${styles.toast} ${styles[toast.type]}`}
+          role={assertive ? 'alert' : 'status'}
+          aria-live={assertive ? 'assertive' : 'polite'}
+          aria-atomic="true"
         >
           <div className={styles.iconContainer}>
             {getToastIcon(toast.type)}
@@ -91,7 +93,7 @@ export const Toast = () => {
             <CloseIcon />
           </button>
         </div>
-      ))}
+      )})}
     </div>
   );
 };

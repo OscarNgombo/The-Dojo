@@ -7,7 +7,7 @@ import {
   useRef,
 } from 'react'
 import { usersApi } from '../api'
-import type { User, PaginatedResponse } from '../types'
+import type { User } from '../types'
 
 interface UsersState {
   users: User[]
@@ -22,7 +22,7 @@ interface FetchUsersOptions {
   role?: 'admin' | 'trainee'
   status?: 'approved' | 'pending' | 'rejected'
   search?: string
-  sortField?: 'name' | 'email' | 'created_at'
+  sortField?: 'id' | 'name' | 'email' | 'created_at'
   sortDirection?: 'asc' | 'desc'
 }
 
@@ -58,15 +58,18 @@ const initialState: UsersState = {
 
 export const UsersProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<UsersState>(initialState)
-  // Persist the last successful query so that mutation operations can re-fetch with same parameters
-  const lastQueryRef = useRef<{ page: number; pageSize: number; options?: FetchUsersOptions }>({ page: 1, pageSize: 10 })
+  const lastQueryRef = useRef<{
+    page: number
+    pageSize: number
+    options?: FetchUsersOptions
+  }>({ page: 1, pageSize: 10 })
 
   const actions = useMemo<UsersActions>(
     () => ({
       fetchUsers: async (page, pageSize = 10, options) => {
         setState((prev) => ({ ...prev, loading: true, error: null }))
         try {
-          const response = (await usersApi.getUsers(
+          const response = await usersApi.getUsers(
             page,
             pageSize,
             options?.role,
@@ -74,12 +77,12 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
             options?.search,
             options?.sortField,
             options?.sortDirection,
-          )) as unknown as PaginatedResponse<User>
+          )
           lastQueryRef.current = { page, pageSize, options }
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             loading: false,
-            users: response.records,
+            users: Array.isArray(response.records) ? response.records : [],
             currentPage: response.current_page,
             totalPages: response.last_page,
             totalCount: response.total_count,
@@ -103,7 +106,7 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
         try {
           await usersApi.updateUserRole(userId, role)
           const { page, pageSize, options } = lastQueryRef.current
-            await actions.fetchUsers(page, pageSize, options)
+          await actions.fetchUsers(page, pageSize, options)
         } catch (error) {
           console.error('Failed to update user role:', error)
         }
@@ -118,7 +121,7 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
         }
       },
     }),
-    [], // static actions instance
+    [],
   )
 
   const contextValue = useMemo(

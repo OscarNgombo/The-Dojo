@@ -70,7 +70,6 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Toast types - matching your design */
 .success {
   background-color: var(--success-color);
   color: #ffffff;
@@ -126,7 +125,7 @@
   }
 }
 
-/* Mobile responsive adjustments */
+
 @media (max-width: 576px) {
   .toastContainer {
     top: auto;

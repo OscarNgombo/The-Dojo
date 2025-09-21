@@ -1,11 +1,27 @@
-// Base response type for all API responses
 export interface ApiResponse<T> {
   data: T
   message?: string
   success: boolean
 }
 
-// Pagination related types
+export interface ApiErrorShape {
+  name: 'ApiError'
+  message: string
+  status?: number
+  url: string
+  method: string
+  code?: string
+  details?: unknown
+  aborted?: boolean
+  network?: boolean
+}
+
+export interface RequestConfig {
+  signal?: AbortSignal
+  timeoutMs?: number
+  headers?: HeadersInit
+}
+
 export interface PaginatedResponse<T> {
   domain: string
   current_page: number
@@ -15,7 +31,6 @@ export interface PaginatedResponse<T> {
   records: T[]
 }
 
-// User related types
 export interface User {
   id: string | number
   name: string
@@ -43,7 +58,6 @@ export interface GoogleAuthCredentials {
   token: string
 }
 
-// Subject related types
 export interface Subject {
   id: string
   name: string
@@ -60,7 +74,6 @@ export interface SubjectFormData {
   isActive: boolean
 }
 
-// Task related types
 export interface Task {
   id: string
   subjectId: string
@@ -85,7 +98,6 @@ export interface TaskFormData {
   isActive: boolean
 }
 
-// Query parameters for API requests
 export interface QueryParams {
   page?: number
   pageSize?: number

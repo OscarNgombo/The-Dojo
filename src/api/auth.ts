@@ -34,14 +34,8 @@ export const authService = {
     })
   },
 
-  /**
-   * Fetch current user profile. Backend returns shape:
-   * { user: { ...User }, message: string }
-   * We unwrap and return a consistent { user: User } object.
-   */
   getCurrentUser: async (): Promise<{ user: User }> => {
     const raw = await apiService.get<{ user: User }>('/admin/users/profile')
-    // Support either ApiResponse<T> with data or plain object
     const container: any = (raw as any).data || raw
     const user = container.user
     if (!user) {
@@ -63,13 +57,7 @@ export const authService = {
   },
 }
 
-/**
- * Admin-specific user management API services
- */
 export const userService = {
-  /**
-   * Get all users with pagination
-   */
   getUsers: async (
     page = 1,
     pageSize = 10,
@@ -82,9 +70,6 @@ export const userService = {
     return apiService.get<PaginatedResponse<User>>(endpoint)
   },
 
-  /**
-   * Get pending trainees
-   */
   getPendingTrainees: async (
     page = 1,
     pageSize = 10,
@@ -94,16 +79,10 @@ export const userService = {
     )
   },
 
-  /**
-   * Get a single user by ID
-   */
   getUserById: async (userId: string): Promise<ApiResponse<User>> => {
     return apiService.get<User>(`/admin/users/${userId}`)
   },
 
-  /**
-   * Update user status (approve, reject)
-   */
   updateUserStatus: async (
     userId: string,
     status: 'approved' | 'rejected',
@@ -111,9 +90,6 @@ export const userService = {
     return apiService.put<User>(`/admin/users/${userId}/status`, { status })
   },
 
-  /**
-   * Update user role
-   */
   updateUserRole: async (
     userId: string,
     role: 'admin' | 'trainee',
@@ -121,18 +97,12 @@ export const userService = {
     return apiService.put<User>(`/admin/users/${userId}/role`, { role })
   },
 
-  /**
-   * Delete user
-   */
   deleteUser: async (
     userId: string,
   ): Promise<ApiResponse<{ success: boolean }>> => {
     return apiService.delete<{ success: boolean }>(`/admin/users/${userId}`)
   },
 
-  /**
-   * Get user profile
-   */
   getUserProfile: async (userId: string): Promise<ApiResponse<User>> => {
     return apiService.get<User>(`/admin/users/${userId}/profile`)
   },

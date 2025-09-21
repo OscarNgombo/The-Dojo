@@ -11,8 +11,6 @@ interface ActiveBadgeGroupProps {
   sorts?: ActiveBadgeItemBase & { count: number }
 }
 
-// Renders consolidated badges: "Filters {count}" and "Sort {count}".
-// Previous behavior listed parameter labels; now we just show total active counts.
 export const ActiveBadgeGroup: React.FC<ActiveBadgeGroupProps> = ({
   filters,
   sorts,

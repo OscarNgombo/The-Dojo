@@ -28,7 +28,6 @@
   outline-offset: 2px;
 }
 
-/* Variants */
 .primary {
   background: var(--primary-color);
 }
@@ -88,7 +87,6 @@
   fill: currentColor;
 }
 
-/* Animations */
 @keyframes pillFadeIn {
   0% {
     opacity: 0;

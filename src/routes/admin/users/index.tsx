@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState, useCallback } from 'react'
+import { usePagination } from '../../../hooks/usePagination'
 import { useUsers } from '../../../providers'
 import { useToast } from '../../../providers'
 import {
@@ -15,7 +16,9 @@ import {
 import type { ColumnDef } from '../../../types/dataTable'
 import type { User } from '../../../types'
 import { formatDate } from '../../../utils/dateUtils'
+import { encodeId } from '../../../utils/idCodec'
 import { useRequireAdmin } from '../../../hooks/useAuthGuards'
+import { useQueryState } from '../../../hooks/useQueryState'
 
 export const Route = createFileRoute('/admin/users/')({
   component: UserManagementPage,
@@ -55,94 +58,117 @@ function UserManagementPage() {
     totalCount,
   } = state
   const navigate = useNavigate()
-  const search = useSearch({ from: '/admin/users/' }) as Record<string, string>
 
-  // Filter/Sort UI state
   const [isFilterOpen, setFilterOpen] = useState(false)
   const [isSortOpen, setSortOpen] = useState(false)
 
-  const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'trainee'>(
-    (search.role as any) || 'all',
-  )
-  const [filterStatus, setFilterStatus] = useState<
-    'all' | 'approved' | 'pending' | 'rejected'
-  >((search.status as any) || 'all')
-  const [searchTerm, setSearchTerm] = useState(search.search || '')
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(
-    search.search || '',
-  )
-  const [sortField, setSortField] = useState<
-    'name' | 'email' | 'created_at' | ''
-  >((search.sortField as any) || '')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(
-    (search.sortDirection as any) || 'asc',
-  )
+  const [filterRole, setFilterRole] = useQueryState<
+    'all' | 'admin' | 'trainee',
+    '/admin/users/'
+  >({
+    key: 'role',
+    defaultValue: 'all',
+    route: '/admin/users/',
+  })
+  const [filterStatus, setFilterStatus] = useQueryState<
+    'all' | 'approved' | 'pending' | 'rejected',
+    '/admin/users/'
+  >({
+    key: 'status',
+    defaultValue: 'all',
+    route: '/admin/users/',
+  })
+  const [searchTerm, setSearchTerm] = useQueryState<string, '/admin/users/'>({
+    key: 'search',
+    defaultValue: '',
+    route: '/admin/users/',
+    debounceMs: 400,
+  })
+  const [sortField, setSortField] = useQueryState<
+    'name' | 'email' | 'created_at' | '',
+    '/admin/users/'
+  >({
+    key: 'sortField',
+    defaultValue: '',
+    route: '/admin/users/',
+  })
+  const [sortDirection, setSortDirection] = useQueryState<
+    'asc' | 'desc',
+    '/admin/users/'
+  >({
+    key: 'sortDirection',
+    defaultValue: 'asc',
+    route: '/admin/users/',
+  })
+  const [page, setPage] = useQueryState<number, '/admin/users/'>({
+    key: 'page',
+    defaultValue: 1,
+    route: '/admin/users/',
+    parse: (raw) => (raw ? parseInt(raw, 10) || 1 : 1),
+    serialize: (v) => (v > 1 ? String(v) : undefined),
+  })
 
   const applyFetch = useCallback(
-    (page: number = 1) => {
-      actions.fetchUsers(page, 10, {
+    (pg: number = 1) => {
+      actions.fetchUsers(pg, 10, {
         role: filterRole !== 'all' ? filterRole : undefined,
         status: filterStatus !== 'all' ? filterStatus : undefined,
-        search: debouncedSearchTerm || undefined,
-        sortField: sortField || undefined,
-        sortDirection: sortField ? sortDirection : undefined,
+        search: searchTerm || undefined,
+        sortField: 'id',
+        sortDirection: 'asc',
       })
     },
-    [filterRole, filterStatus, debouncedSearchTerm, sortField, sortDirection],
+    [filterRole, filterStatus, searchTerm],
   )
 
   useEffect(() => {
-    const pageParam = parseInt(search.page || '1', 10)
-    applyFetch(Number.isNaN(pageParam) ? 1 : pageParam)
-  }, [])
+    applyFetch(page)
+  }, [page, filterRole, filterStatus, searchTerm])
 
   useEffect(() => {
-    const h = setTimeout(() => setDebouncedSearchTerm(searchTerm), 400)
-    return () => clearTimeout(h)
-  }, [searchTerm])
-
-  // When filter/sort/debounced search inputs change, reset to page 1 and fetch
-  useEffect(() => {
-    applyFetch(1)
-  }, [filterRole, filterStatus, debouncedSearchTerm, sortField, sortDirection])
-
-  // Persist current state to URL (role,status,search,sortField,sortDirection,page)
-  useEffect(() => {
-    const params: Record<string, string> = {}
-    if (filterRole !== 'all') params.role = filterRole
-    if (filterStatus !== 'all') params.status = filterStatus
-    if (debouncedSearchTerm) params.search = debouncedSearchTerm
-    if (sortField) {
-      params.sortField = sortField
-      params.sortDirection = sortDirection
+    if (currentPage && currentPage !== page) {
+      setPage(currentPage)
     }
-    if (currentPage && currentPage > 1) params.page = String(currentPage)
-    navigate({ to: '/admin/users', search: params as any, replace: true })
-  }, [
-    filterRole,
-    filterStatus,
-    debouncedSearchTerm,
-    sortField,
-    sortDirection,
-    currentPage,
-    sortDirection,
-    navigate,
-  ])
+  }, [currentPage])
 
   const filterCount = useMemo(
     () =>
-      [
-        filterRole !== 'all',
-        filterStatus !== 'all',
-        !!debouncedSearchTerm,
-      ].filter(Boolean).length,
-    [filterRole, filterStatus, debouncedSearchTerm],
+      [filterRole !== 'all', filterStatus !== 'all', !!searchTerm].filter(
+        Boolean,
+      ).length,
+    [filterRole, filterStatus, searchTerm],
   )
 
   const sortCount = useMemo(() => (sortField ? 1 : 0), [sortField])
 
-  // Replace filteredSortedUsers with server data directly
-  const displayedUsers = users
+  const displayedUsers = useMemo(() => {
+    if (!sortField) {
+      return [...users].sort((a, b) => {
+        const aId = Number(a.id)
+        const bId = Number(b.id)
+        if (Number.isNaN(aId) || Number.isNaN(bId)) return 0
+        return aId - bId
+      })
+    }
+    const sorted = [...users].sort((a: any, b: any) => {
+      const aVal = a[sortField]
+      const bVal = b[sortField]
+      if (aVal == null && bVal == null) return 0
+      if (aVal == null) return sortDirection === 'asc' ? -1 : 1
+      if (bVal == null) return sortDirection === 'asc' ? 1 : -1
+      if (sortField === 'created_at') {
+        const aTime = new Date(aVal).getTime()
+        const bTime = new Date(bVal).getTime()
+        return sortDirection === 'asc' ? aTime - bTime : bTime - aTime
+      }
+      const aStr = String(aVal).toLowerCase()
+      const bStr = String(bVal).toLowerCase()
+      if (aStr < bStr) return sortDirection === 'asc' ? -1 : 1
+      if (aStr > bStr) return sortDirection === 'asc' ? 1 : -1
+      return 0
+    })
+    return sorted
+  }, [users, sortField, sortDirection])
 
   const handleRoleChange = async (
     userId: string | number,
@@ -272,7 +298,15 @@ function UserManagementPage() {
     },
   ]
 
+  const pagination = usePagination({
+    totalItems: totalCount || 0,
+    initialPage: currentPage || 1,
+    pageSize: 10,
+  })
+
   const handlePageChange = (page: number) => {
+    pagination.goToPage(page)
+    setPage(page)
     applyFetch(page)
   }
 
@@ -332,18 +366,22 @@ function UserManagementPage() {
       <DataTable
         columns={columns}
         data={displayedUsers}
-        currentPage={currentPage}
+        caption="Trainee and Admin Accounts overview table"
+        ariaLabel="User accounts table with filtering, sorting, pagination"
+        getRowId={(row: User) => String(row.id)}
+        currentPage={pagination.currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
         totalCount={totalCount}
         pageSize={10}
         isClickable
-        onRowClick={(user) =>
+        onRowClick={(user) => {
+          const rawId = String((user as User).id)
           navigate({
             to: '/admin/users/$userId',
-            params: { userId: String((user as User).id) },
+            params: { userId: encodeId(rawId) },
           })
-        }
+        }}
         onFilter={() => setFilterOpen(true)}
         onSort={() => setSortOpen(true)}
         showSortButton={!sortCount}
@@ -356,7 +394,6 @@ function UserManagementPage() {
                 onClear: () => {
                   setSortField('')
                   setSortDirection('asc')
-                  applyFetch(1)
                 },
               }
             : undefined

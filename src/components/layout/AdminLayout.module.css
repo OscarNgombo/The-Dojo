@@ -16,7 +16,6 @@
   grid-template-columns: 64px 1fr;
 }
 
-/* Header */
 .header {
   grid-area: header;
   background: #ffffff;
@@ -103,7 +102,6 @@
   color: var(--dark-color);
 }
 
-/* Sidebar */
 .sidebar {
   grid-area: sidebar;
   background: #ffffff;
@@ -127,7 +125,7 @@
 
 .navigation li {
   margin: 0;
-  position: relative; /* For the hover tooltip */
+  position: relative;
 }
 
 .navLink {
@@ -166,7 +164,7 @@
   margin-right: 12px;
   width: 24px;
   height: 24px;
-  flex-shrink: 0; /* Prevent icon from shrinking */
+  flex-shrink: 0;
   transition: margin-right 0.3s ease;
 }
 
@@ -190,7 +188,7 @@
 .collapsed .navLabel {
   opacity: 0;
   width: 0;
-  pointer-events: none; /* Prevent interaction when hidden */
+  pointer-events: none; 
 }
 
 .collapsed .navLink:hover .navLabel {
@@ -296,7 +294,7 @@
   margin: 0;
 }
 
-/* Responsive design */
+
 @media (max-width: 768px) {
   .adminLayout {
     flex-direction: column;

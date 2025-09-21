@@ -13,7 +13,6 @@
   gap: 10px;
 }
 
-/* Animation helpers */
 .fadeSlideIn {
   animation: fadeSlideIn 160ms ease-out;
 }
@@ -46,7 +45,7 @@
   position: relative;
   border-radius: 6px;
   transition: var(--transition);
-  color: var(--primary-color); /* ensure visible icon color */
+  color: var(--primary-color); 
 }
 
 .rightActions button:hover {
@@ -59,7 +58,6 @@
   outline-offset: 2px;
 }
 
-/* Ensure SVG inside buttons always inherits color */
 .rightActions button svg {
   fill: currentColor;
   stroke: currentColor;

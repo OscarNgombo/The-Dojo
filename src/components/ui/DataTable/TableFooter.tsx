@@ -27,14 +27,12 @@ export const TableFooter = ({
     }
   }
 
-  // Generate page numbers to display
   const getPageNumbers = () => {
     const pages = []
     const maxVisiblePages = 5
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2))
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
-    
-    // Adjust start page if we're near the end
+
     if (endPage - startPage < maxVisiblePages - 1) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1)
     }
@@ -57,7 +55,7 @@ export const TableFooter = ({
           </span>
         )}
       </div>
-      
+
       <div className={styles.pagination}>
         <button
           className={`${styles.pageButton} ${styles.navButton}`}

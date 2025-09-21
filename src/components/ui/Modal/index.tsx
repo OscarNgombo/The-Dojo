@@ -22,12 +22,6 @@ export interface ModalProps {
   initialFocusRef?: React.RefObject<HTMLElement>
 }
 
-// Accessibility contract:
-// - role="dialog" + aria-modal="true"
-// - Title: aria-labelledby if title provided, else aria-label required
-// - Esc key closes
-// - Focus trap (basic) & restore previous active element
-// - Overlay click optional (closeOnOverlay)
 export const Modal: React.FC<ModalProps> = ({
   open,
   title,

@@ -1,16 +1,16 @@
-import type { HTMLAttributes } from 'react';
-import styles from './Avatar.module.css';
+import type { HTMLAttributes } from 'react'
+import styles from './Avatar.module.css'
 
-type AvatarSize = 'small' | 'medium' | 'large' | 'xlarge';
-type AvatarStatus = 'online' | 'away' | 'offline' | 'busy';
+type AvatarSize = 'small' | 'medium' | 'large' | 'xlarge'
+type AvatarStatus = 'online' | 'away' | 'offline' | 'busy'
 
 interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
-  src?: string;
-  alt?: string;
-  name?: string;
-  size?: AvatarSize;
-  status?: AvatarStatus;
-  withBorder?: boolean;
+  src?: string
+  alt?: string
+  name?: string
+  size?: AvatarSize
+  status?: AvatarStatus
+  withBorder?: boolean
 }
 
 export const Avatar = ({
@@ -23,17 +23,16 @@ export const Avatar = ({
   className,
   ...props
 }: AvatarProps) => {
-  // Generate initials from name
   const getInitials = (name: string): string => {
-    if (!name) return '';
-    
-    const names = name.split(' ');
+    if (!name) return ''
+
+    const names = name.split(' ')
     if (names.length === 1) {
-      return names[0].charAt(0).toUpperCase();
+      return names[0].charAt(0).toUpperCase()
     }
-    
-    return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
-  };
+
+    return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase()
+  }
 
   return (
     <div
@@ -46,17 +45,11 @@ export const Avatar = ({
       `}
       {...props}
     >
-      {src ? (
-        <img src={src} alt={alt} />
-      ) : name ? (
-        getInitials(name)
-      ) : (
-        'U'
-      )}
-      
+      {src ? <img src={src} alt={alt} /> : name ? getInitials(name) : 'U'}
+
       {status && (
         <span className={`${styles.statusIndicator} ${styles[status]}`}></span>
       )}
     </div>
-  );
-};
+  )
+}

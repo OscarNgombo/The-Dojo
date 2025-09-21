@@ -4,7 +4,6 @@
   box-sizing: border-box;
   background-color: #ffffff;
   --primary-color: #3498db;
-  /* Derived translucent variants (alpha utilities) */
   --primary-color-alpha-12: rgba(52, 152, 219, 0.12);
   --secondary-color: #6b7280;
   --success-color: #10b981;

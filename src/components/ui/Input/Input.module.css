@@ -33,7 +33,6 @@
   opacity: var(--disabled-opacity);
 }
 
-/* Input variants */
 .default {
   background-color: #ffffff;
 }
@@ -42,7 +41,6 @@
   background-color: var(--light-color);
 }
 
-/* Input sizes */
 .small {
   padding: 6px 8px;
   font-size: 14px;
@@ -58,7 +56,6 @@
   font-size: 18px;
 }
 
-/* Error state */
 .error {
   border-color: var(--danger-color);
 }
@@ -74,14 +71,12 @@
   margin-top: 4px;
 }
 
-/* Helper text */
 .helperText {
   font-size: 12px;
   color: var(--secondary-color);
   margin-top: 4px;
 }
 
-/* Mobile responsive adjustments */
 @media (max-width: 576px) {
   .input {
     font-size: 14px;

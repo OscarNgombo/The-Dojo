@@ -122,7 +122,6 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Focus outline for accessibility */
 .closeBtn:focus-visible, .primaryBtn:focus-visible, .secondaryBtn:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;

@@ -1,8 +1,3 @@
-/**
- * Safely formats a date string or Date object to a readable format
- * @param dateInput - The date string, number, or Date object to format
- * @returns A formatted date string or 'Invalid Date' if parsing fails
- */
 export const formatDate = (dateInput: string | number | Date): string => {
   if (!dateInput) {
     return 'No date provided'
@@ -45,11 +40,6 @@ export const formatDate = (dateInput: string | number | Date): string => {
   }
 }
 
-/**
- * Safely formats a date to a short format (MM/DD/YYYY)
- * @param dateInput - The date string, number, or Date object to format
- * @returns A formatted date string in MM/DD/YYYY format
- */
 export const formatDateShort = (dateInput: string | number | Date): string => {
   if (!dateInput) {
     return 'No date'

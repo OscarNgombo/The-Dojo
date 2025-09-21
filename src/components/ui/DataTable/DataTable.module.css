@@ -7,3 +7,11 @@
   min-width: 400px;
   box-shadow: var(--box-shadow);
 }
+
+.caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 600;
+  padding: 8px 4px;
+  color: var(--dark-color);
+}

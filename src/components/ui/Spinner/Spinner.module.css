@@ -32,7 +32,6 @@
   animation-delay: -0.15s;
 }
 
-/* Spinner sizes */
 .small {
   width: 16px;
   height: 16px;
@@ -66,7 +65,6 @@
   border-width: 4px;
 }
 
-/* Spinner colors */
 .primary {
   color: var(--primary-color);
 }
@@ -92,7 +90,6 @@
   }
 }
 
-/* Full page spinner */
 .fullPage {
   position: fixed;
   top: 0;

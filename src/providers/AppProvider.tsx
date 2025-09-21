@@ -17,10 +17,8 @@ interface AppContextType {
   actions: AppActions
 }
 
-// Create context with undefined as initial value
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
-// Initial state
 const initialState: AppState = {
   loading: false,
   error: null,
@@ -33,7 +31,6 @@ interface AppProviderProps {
 export const AppProvider = ({ children }: AppProviderProps) => {
   const [state, setState] = useState<AppState>(initialState)
 
-  // Initialize Google Auth when the app starts
   useEffect(() => {
     initializeGoogleAuth()
       .then(() => {
@@ -46,7 +43,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       })
   }, [])
 
-  // Memoize actions to prevent unnecessary re-renders
   const actions = useMemo<AppActions>(
     () => ({
       setLoading: (loading: boolean) =>
@@ -57,7 +53,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     [],
   )
 
-  // Provide the app context to children components
   return (
     <AppContext.Provider value={{ state, actions }}>
       {children}
@@ -65,9 +60,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   )
 }
 
-/**
- * Custom hook to use the app context
- */
 export const useApp = (): AppContextType => {
   const context = useContext(AppContext)
   if (!context) {

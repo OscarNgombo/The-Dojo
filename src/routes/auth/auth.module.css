@@ -70,7 +70,6 @@
   margin-top: 16px;
 }
 
-/* Mobile responsive adjustments */
 @media (max-width: 576px) {
   .authContainer {
     padding: 16px;

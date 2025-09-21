@@ -17,6 +17,10 @@ export interface DataTableProps<T> {
   rowActions?: ActionItem<T>[]
   isClickable?: boolean
   onRowClick?: (item: T) => void
+  ariaLabel?: string
+  caption?: string
+  emptyState?: React.ReactNode
+  getRowId?: (item: T, index: number) => string | number
   showDefaultRightActions?: boolean
   showSortButton?: boolean
   showFilterButton?: boolean

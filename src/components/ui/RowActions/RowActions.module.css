@@ -3,9 +3,33 @@
   display: inline-block;
 }
 
+.rowActions button {
+  background: var(--light-color);
+  border: 1px solid var(--border-color);
+  color: var(--primary-color);
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
 .rowActions button svg {
   fill: currentColor;
   stroke: currentColor;
+  width: 20px;
+  height: 20px;
+  transform: rotate(90deg);
+}
+
+.rowActions button:hover,
+.rowActions button:focus-visible {
+  background: var(--primary-color-alpha-12);
+  border-color: var(--primary-color);
+  outline: none;
 }
 
 .dropdown {

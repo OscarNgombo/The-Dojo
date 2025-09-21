@@ -292,6 +292,30 @@ Once we've created the derived store we can use it in the `App` component just l
 
 You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
 
+## Environment Variables
+
+Define these in a `.env` (not committed) or host environment before `pnpm dev` / `pnpm build`.
+
+| Variable | Required | Purpose | Notes |
+|----------|----------|---------|-------|
+| `VITE_API_BASE_URL` | Recommended | Base URL for the backend API | Falls back to `http://localhost:3000` if unset. Prefer this over legacy name. |
+| `REACT_APP_API_BASE_URL` | Legacy/Optional | Backward-compatible base URL key | Only read if `VITE_API_BASE_URL` missing; keep during transition. |
+| `VITE_ADMIN_BEARER_TOKEN` | Dev Optional | Convenience token for admin requests | For local development only; real auth should exchange credentials & store runtime token. |
+| `REACT_APP_JWT_SECRET` | Optional | If some client-side decoding/hashing logic references it | Do NOT put real secrets in client bundles; keep empty in production. |
+
+Example `.env`:
+
+```bash
+VITE_API_BASE_URL=http://localhost:3000
+VITE_ADMIN_BEARER_TOKEN=dev-admin-token
+```
+
+Security Notes:
+- Never commit real secrets; all `VITE_`/`REACT_APP_` prefixed vars are embedded at build time.
+- Avoid long‑lived static bearer tokens in production; implement proper login flow returning a JWT saved to storage (already scaffolded via `auth` provider code paths).
+
+---
+
 # Demo files
 
 Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.

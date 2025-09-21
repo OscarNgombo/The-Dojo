@@ -25,11 +25,9 @@ export const getRouteUser = (context: unknown) => {
   }
 }
 
-/** Guard helper used inside beforeLoad functions */
 export const ensureAdmin = (context: unknown) => {
   const { user, loadingAuth, isAuthenticated } = getRouteUser(context) as any
   if (loadingAuth) return { defer: true }
-  // If authenticated but user not yet synced, defer once more
   if (isAuthenticated && !user) return { defer: true }
   if (!user || user.role !== 'admin') return { unauthorized: true }
   return { ok: true }
