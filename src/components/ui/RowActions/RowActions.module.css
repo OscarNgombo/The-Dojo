@@ -12,6 +12,7 @@
   padding: 0;
   border-radius: 8px;
   display: inline-flex;
+  gap: 1em;
   align-items: center;
   justify-content: center;
   transition: var(--transition);
@@ -48,12 +49,13 @@
 .dropdownItem {
   display: block;
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 14px; /* increased for better tap target */
   text-align: left;
   border: none;
   background: none;
   cursor: pointer;
   font-size: 14px;
+  line-height: 1.2;
 }
 
 .dropdownItem:hover {

@@ -1,26 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
-import { Spinner } from '../../../components/ui'
+import { CenteredPageSpinner } from '@/components/ui'
+import { parseEditMode } from '@/utils/searchParams'
 
-const UserDetailPage = lazy(() => import('./UserDetailPage'))
+const UserDetailPage = lazy(() => import('@/features/users/UserDetailPage'))
 
 export const Route = createFileRoute('/admin/users/$userId')({
-  component: () => (
-    <Suspense
-      fallback={
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '80vh',
-          }}
-        >
-          <Spinner size="large" color="primary" />
-        </div>
-      }
-    >
-      <UserDetailPage />
-    </Suspense>
-  ),
+  validateSearch: (search: Record<string, unknown>) => parseEditMode(search),
+  component: () => {
+    const { userId } = Route.useParams()
+  Route.useSearch() as ReturnType<typeof parseEditMode> // currently unused but reserved for future edit mode
+    return (
+      <Suspense fallback={<CenteredPageSpinner />}>
+        <UserDetailPage userIdParam={userId} /* placeholder for potential initialEdit */ />
+      </Suspense>
+    )
+  },
 })

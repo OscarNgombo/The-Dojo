@@ -175,7 +175,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         email: googleUser.email,
         role: googleUser.email === 'oscartinga@gmail.com' ? 'admin' : 'trainee',
         status: 'approved',
-        avatar: googleUser.picture,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }

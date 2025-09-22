@@ -1,4 +1,4 @@
-import type { DataTableProps } from '../../../types/dataTable'
+import type { DataTableProps } from '@/types/dataTable.ts'
 import styles from './DataTable.module.css'
 import { TableActions } from './TableActions'
 import { TableRows } from './TableRows'
@@ -19,6 +19,8 @@ export const DataTable = <T extends object>({
   onFilter,
   onRefresh,
   rightBadges,
+  rightActionsExtra,
+  leftActionsExtra,
   showFooter = true,
   totalPages,
   currentPage,
@@ -33,7 +35,9 @@ export const DataTable = <T extends object>({
   return (
     <div className={styles.dataTableWrapper}>
       <TableActions
+        leftActionsExtra={leftActionsExtra}
         rightBadges={rightBadges}
+        rightActionsExtra={rightActionsExtra}
         showSortButton={showSortButton}
         showFilterButton={showFilterButton}
         filterActive={filterActive}

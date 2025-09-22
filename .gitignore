@@ -7,3 +7,16 @@ count.txt
 .env
 .nitro
 .tanstack
+/copilot*/
+.idea/
+.vscode/
+node_modules/
+dist/
+build/
+out/
+.env
+.env.local
+.prettierignore
+/src/routes-gen.ts
+/src/stores-gen.ts
+/src/routeTree.gen.ts

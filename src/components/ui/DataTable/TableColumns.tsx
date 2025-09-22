@@ -1,4 +1,4 @@
-import type { ColumnDef, ActionItem } from '../../../types/dataTable'
+import type { ColumnDef, ActionItem } from '@/types/dataTable.ts'
 import styles from './TableColumns.module.css'
 
 interface TableColumnsProps<T> {

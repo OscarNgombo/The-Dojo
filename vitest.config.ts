@@ -3,11 +3,17 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': new URL('./src', import.meta.url).pathname,
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
     globals: true,
     restoreMocks: true,
+  css: true,
     coverage: {
       reporter: ['text', 'html'],
     },

@@ -21,6 +21,8 @@ import { Route as TraineeSubjectsIndexRouteImport } from './routes/trainee/subje
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminSubjectsIndexRouteImport } from './routes/admin/subjects/index'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users/$userId'
+import { Route as AdminSubjectsCreateRouteImport } from './routes/admin/subjects/create'
+import { Route as AdminSubjectsSubjectIdRouteImport } from './routes/admin/subjects/$subjectId'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -82,6 +84,16 @@ const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
   path: '/users/$userId',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSubjectsCreateRoute = AdminSubjectsCreateRouteImport.update({
+  id: '/subjects/create',
+  path: '/subjects/create',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSubjectsSubjectIdRoute = AdminSubjectsSubjectIdRouteImport.update({
+  id: '/subjects/$subjectId',
+  path: '/subjects/$subjectId',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -92,6 +104,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/auth': typeof AuthIndexRoute
   '/trainee': typeof TraineeIndexRoute
+  '/admin/subjects/$subjectId': typeof AdminSubjectsSubjectIdRoute
+  '/admin/subjects/create': typeof AdminSubjectsCreateRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/subjects': typeof AdminSubjectsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
@@ -105,6 +119,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/auth': typeof AuthIndexRoute
   '/trainee': typeof TraineeIndexRoute
+  '/admin/subjects/$subjectId': typeof AdminSubjectsSubjectIdRoute
+  '/admin/subjects/create': typeof AdminSubjectsCreateRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/subjects': typeof AdminSubjectsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
@@ -120,6 +136,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/trainee/': typeof TraineeIndexRoute
+  '/admin/subjects/$subjectId': typeof AdminSubjectsSubjectIdRoute
+  '/admin/subjects/create': typeof AdminSubjectsCreateRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/admin/subjects/': typeof AdminSubjectsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
@@ -136,6 +154,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auth'
     | '/trainee'
+    | '/admin/subjects/$subjectId'
+    | '/admin/subjects/create'
     | '/admin/users/$userId'
     | '/admin/subjects'
     | '/admin/users'
@@ -149,6 +169,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/trainee'
+    | '/admin/subjects/$subjectId'
+    | '/admin/subjects/create'
     | '/admin/users/$userId'
     | '/admin/subjects'
     | '/admin/users'
@@ -163,6 +185,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auth/'
     | '/trainee/'
+    | '/admin/subjects/$subjectId'
+    | '/admin/subjects/create'
     | '/admin/users/$userId'
     | '/admin/subjects/'
     | '/admin/users/'
@@ -266,11 +290,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersUserIdRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/subjects/create': {
+      id: '/admin/subjects/create'
+      path: '/subjects/create'
+      fullPath: '/admin/subjects/create'
+      preLoaderRoute: typeof AdminSubjectsCreateRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/subjects/$subjectId': {
+      id: '/admin/subjects/$subjectId'
+      path: '/subjects/$subjectId'
+      fullPath: '/admin/subjects/$subjectId'
+      preLoaderRoute: typeof AdminSubjectsSubjectIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminSubjectsSubjectIdRoute: typeof AdminSubjectsSubjectIdRoute
+  AdminSubjectsCreateRoute: typeof AdminSubjectsCreateRoute
   AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
   AdminSubjectsIndexRoute: typeof AdminSubjectsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
@@ -278,6 +318,8 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
+  AdminSubjectsSubjectIdRoute: AdminSubjectsSubjectIdRoute,
+  AdminSubjectsCreateRoute: AdminSubjectsCreateRoute,
   AdminUsersUserIdRoute: AdminUsersUserIdRoute,
   AdminSubjectsIndexRoute: AdminSubjectsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,

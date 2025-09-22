@@ -4,7 +4,19 @@ import type {
   PaginatedResponse,
   Subject,
   SubjectFormData,
+  RawSubject,
 } from '../types'
+
+export const normalizeSubject = (raw: RawSubject): Subject => ({
+  id: String(raw.id),
+  name: raw.name,
+  description: raw.description,
+  isActive: raw.is_active,
+  createdBy: String(raw.created_by),
+  createdAt: raw.created_at,
+  updatedAt: raw.updated_at,
+  createdByName: raw.created_by_name,
+})
 
 export const subjectService = {
   getSubjects: async (

@@ -6,8 +6,8 @@ import {
   type ReactNode,
   useRef,
 } from 'react'
-import { usersApi } from '../api'
-import type { User } from '../types'
+import { usersApi } from '@/api'
+import type { User } from '@/types'
 
 interface UsersState {
   users: User[]

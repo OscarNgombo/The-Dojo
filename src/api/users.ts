@@ -22,7 +22,6 @@ const getUsers = async (
   const response = await apiService.get<PaginatedResponse<User>>(
     `/admin/users?${params.toString()}`,
   )
-  // Support both wrapped and unwrapped
   const container: any = (response as any).data || response
   if (!container) {
     return {

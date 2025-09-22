@@ -12,6 +12,7 @@ import {
   AuthProvider,
   ToastProvider,
   UsersProvider,
+  SubjectsProvider,
 } from '../providers'
 import { Toast } from '@/components/ui/Toast'
 
@@ -39,26 +40,28 @@ export const Route = createRootRoute({
       <ToastProvider>
         <AuthProvider>
           <UsersProvider>
-            <ErrorBoundary>
-              <AuthSync />
-              <div className="main-content">
-                <Outlet />
-              </div>
-              <Toast />
-            </ErrorBoundary>
-            {isDevelopment && (
-              <TanstackDevtools
-                config={{
-                  position: 'bottom-left',
-                }}
-                plugins={[
-                  {
-                    name: 'Tanstack Router',
-                    render: <TanStackRouterDevtoolsPanel />,
-                  },
-                ]}
-              />
-            )}
+            <SubjectsProvider>
+              <ErrorBoundary>
+                <AuthSync />
+                <div className="main-content">
+                  <Outlet />
+                </div>
+                <Toast />
+              </ErrorBoundary>
+              {isDevelopment && (
+                <TanstackDevtools
+                  config={{
+                    position: 'bottom-left',
+                  }}
+                  plugins={[
+                    {
+                      name: 'Tanstack Router',
+                      render: <TanStackRouterDevtoolsPanel />,
+                    },
+                  ]}
+                />
+              )}
+            </SubjectsProvider>
           </UsersProvider>
         </AuthProvider>
       </ToastProvider>

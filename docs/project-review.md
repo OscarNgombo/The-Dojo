@@ -118,3 +118,102 @@ The project adheres to most structural and architectural guidelines. Key gaps ar
 
 ---
 Generated as part of an automated review. Update this document as improvements are implemented.
+
+---
+
+## Progress Update: 2025-09-22
+
+### Summary Since Last Review (2025-09-20)
+Focused work centered on routing hygiene, feature extraction, client-side sorting consistency, and improving initial edit-mode behavior for entity detail pages. Several foundational refinements were delivered to reduce duplication and prepare for upcoming pagination & audit improvements.
+
+### Implemented Changes
+| Area | Change | Impact |
+|------|--------|--------|
+| Routing Structure | Extracted heavy route components (Subjects/User detail & list) into `features/` + lazy imports | Eliminated TanStack warnings, improved code-splitting readiness |
+| Edit Mode | Restored `mode=edit` search param initialization for Subject detail | Enables deep linking directly into edit state |
+| Reusable UI | Added `InfoBlock` + `CenteredPageSpinner` | Reduced duplication across detail pages & fallback spinners |
+| Search Param Utilities | Added `parseEditMode` & `isEditMode` helper | Centralized logic; easier to extend with more flags |
+| Barrel Exports | Added `features/subjects` & `features/users` index barrels | Cleaner imports, clearer boundaries |
+| Typing | Removed `any` in `$userId` & `$subjectId` route components | Strengthened type safety in routing layer |
+| Tests | Added coverage for search param helpers and ensured provider tests pass (total 10 tests) | Baseline safety net for recent refactors |
+| Documentation | Added `docs/structure.md` plus refinements section | Onboarding clarity for route vs feature separation |
+
+### Whiteboard Items Alignment (Image Reference)
+| Whiteboard Item | Status  | Notes |
+|-----------------|---------|-------|
+| Fetch / Submit API (no libs) | Partially Complete | Core fetch wrapper in place; mutation abstraction could be formalized (`useMutationData` analogue) |
+| useFetchData / useMutateData | Partially Complete | `useApiCall` exists; consider splitting into dedicated fetch + mutation hooks for clarity |
+| Forms (no libs) | In Progress (Ad-hoc) | Forms are hand-rolled; need shared validation & field abstraction guidelines |
+| Tables / DataTable | Implemented (Baseline) | Client-side sorting & filtering live; needs caption, keyboard nav, empty state |
+| Login | Basic Flow | Token handling still placeholder; JWT refresh cycle missing |
+| Dashboard | Not Started | Pending decision on KPIs/metrics scope |
+| Users: List | Implemented | Sorting/filters working; add pagination & query sync abstraction |
+| Users: Single | Implemented | Needs edit mode parity logic if editing is added per requirements |
+| Subjects: List | Implemented | Same improvements pending: pagination, empty state, keyboard nav |
+| Subjects: Single | Implemented (View/Edit) | Edit mode restored via search param; add audit trail display later |
+| All Tasks: List | Not Started | Requires tasks provider + table scaffolding (reuse DataTable) |
+
+### Updated Gaps / New Observations
+| Gap | Previous Status | Current Status | Next Step |
+|-----|-----------------|---------------|----------|
+| Error Boundary | Missing | Still Missing | Implement root boundary wrapping router outlet |
+| Auth Token Refresh | Placeholder | Unchanged | Introduce refresh endpoint handling + expiry parsing |
+| Pagination Hook | Missing | Missing | Implement `usePagination` with page/size/total + URL sync |
+| Query State Abstraction | Recommended | Pending | Build `useQueryState` to unify filters/sort/pagination |
+| Toast Accessibility | Partial | Partial | Add live region (`aria-live="polite" role="status"`) container |
+| DataTable A11y | Partial | Partial | Add `<caption>` + row focus & arrow key support |
+| Audit Logging | Missing | Missing | Add lightweight console logger w/ level gating |
+| API Abort / Retry | Missing | Missing | Add AbortController + optional retry policy (exponential backoff) |
+| Hard-coded Admin Token | High Risk | Still Present | Replace with stored JWT + refresh strategy |
+| Performance Profiling | Not Started | Not Started | Add profiling session once pagination added |
+
+### Revised Priority Recommendations (Next 7–10 Days)
+1. Implement `ErrorBoundary` and mount at root.
+2. Replace static token flow with real JWT persistence + refresh; remove hard-coded admin token.
+3. Add `usePagination` + `useQueryState`; refactor Users & Subjects list pages to consume them.
+4. Add accessibility upgrades: DataTable caption + keyboard nav, toast live region, focus outline consistency.
+5. Introduce audit logging stub: `logEvent(entity, action, meta)` storing in-memory for now.
+6. Add AbortController + optional retry to `apiService` (configurable per request).
+7. Create form validation helper (sync rules map + result object) and apply to Subject/User edit forms.
+8. Expand test suite: DataTable interactions, edit mode initialization, toast auto-dismiss.
+9. Remove Tailwind (or justify & document if kept) to resolve style policy discrepancy.
+10. Prepare tasks module scaffold: provider + list route placeholder with empty table state.
+
+### Quick Wins Completed (Since Last Review)
+- Added tests (now 10 passing) covering providers & helpers baseline.
+- Removed route-level `any` usage in detail pages.
+- Centralized spinner & search param logic -> less duplication.
+
+### New Quick Wins To Grab
+- Add `<caption>` to existing tables (improves accessibility with minimal code).
+- Provide `EmptyState` slot component to DataTable (rendered when `rows.length === 0`).
+- Add `maxQueue` prop & live region to ToastProvider.
+- Introduce `compareBy<T>(key: keyof T)` generic comparator to remove inline lamdas.
+
+### Risk Assessment Update
+| Risk | Current Risk Level | Change | Comment |
+|------|--------------------|--------|---------|
+| Static admin token | High | Unchanged | Still top priority to mitigate |
+| Missing error boundary | Medium | Unchanged | Increases blast radius of runtime errors |
+| Accessibility gaps | Medium | Slightly Reduced | Spinner & structure improvements help but table/toast still lacking |
+| Lack of pagination | Medium | Unchanged | Will affect scalability with growing datasets |
+| Limited test coverage | Medium | Improved | Baseline added; still need interaction & edge tests |
+
+### Metrics / Coverage (Qualitative for Now)
+- Test count: 10 (goal: 25+ covering core flows within 2 sprints).
+- Feature routes lazily loaded: Subjects detail/list, Users detail (others pending).
+- Duplicate route warnings: Eliminated.
+
+### Proposed Short-Term Milestone (Milestone M1: Foundation Hardening)
+Scope: Error boundary, auth refresh, pagination/query abstraction, a11y improvements, audit logging stub, table empty state, toast live region, initial tasks list scaffold.
+
+Exit Criteria:
+- All admin & trainee entity tables share `usePagination` + `useQueryState`.
+- Auth uses JWT from backend (no static token) with refresh path.
+- Root wrapped by functioning error boundary with test simulating throw.
+- DataTable includes caption + keyboard navigation test.
+- Toasts announced via live region, queue capped.
+- Tasks list route returns placeholder with feature skeleton.
+
+---
+Update authored automatically on 2025-09-22.

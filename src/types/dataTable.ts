@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface ColumnDef<T> {
   accessorKey?: keyof T
   header: string
@@ -30,6 +32,8 @@ export interface DataTableProps<T> {
   onFilter?: () => void
   onRefresh?: () => void
   rightBadges?: React.ReactNode
+  rightActionsExtra?: React.ReactNode
+  leftActionsExtra?: React.ReactNode
   showFooter?: boolean
   totalPages?: number
   currentPage?: number

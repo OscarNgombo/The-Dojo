@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useId, useRef } from 'react'
 import styles from './Modal.module.css'
 import { CancelIcon } from '../../Icons'
 
@@ -13,6 +13,7 @@ export interface ModalAction {
 export interface ModalProps {
   open: boolean
   title?: string
+  description?: string
   onClose: () => void
   primaryAction?: ModalAction
   secondaryAction?: ModalAction
@@ -32,10 +33,16 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   ariaLabel,
   initialFocusRef,
+  description,
 }) => {
   const overlayRef = useRef<HTMLDivElement | null>(null)
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const lastFocusedElementRef = useRef<Element | null>(null)
+  const internalId = useId()
+
+  // Stable ids for title & description for a11y
+  const titleId = title ? `modal-${internalId}-title` : undefined
+  const descriptionId = description ? `modal-${internalId}-desc` : undefined
 
   useEffect(() => {
     if (open) {
@@ -45,20 +52,24 @@ export const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     if (!open) return
-
-    const focusTarget =
-      initialFocusRef?.current ||
-      dialogRef.current?.querySelector('[data-autofocus="true"]') ||
-      dialogRef.current
-    if (focusTarget instanceof HTMLElement) {
-      focusTarget.focus()
-    }
+    // Defer to end of call stack to allow content to mount
+    const id = window.requestAnimationFrame(() => {
+      const focusTarget =
+        initialFocusRef?.current ||
+        (dialogRef.current?.querySelector('[data-autofocus="true"]') as HTMLElement | null) ||
+        dialogRef.current
+      if (focusTarget instanceof HTMLElement) {
+        focusTarget.focus()
+      }
+    })
+    return () => window.cancelAnimationFrame(id)
   }, [open, initialFocusRef])
 
   useEffect(() => {
     if (!open) return
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.stopPropagation()
         onClose()
       }
       if (e.key === 'Tab') {
@@ -77,9 +88,19 @@ export const Modal: React.FC<ModalProps> = ({
         }
       }
     }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
+    document.addEventListener('keydown', handleKey, { capture: true })
+    return () => document.removeEventListener('keydown', handleKey, { capture: true } as any)
   }, [open, onClose])
+
+  // Prevent body scroll while modal is open
+  useEffect(() => {
+    if (!open) return
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open && lastFocusedElementRef.current instanceof HTMLElement) {
@@ -99,10 +120,6 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!open) return null
 
-  const titleId = title
-    ? 'modal-title-' + Math.random().toString(36).slice(2)
-    : undefined
-
   return (
     <div
       className={styles.overlay}
@@ -115,6 +132,7 @@ export const Modal: React.FC<ModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
+        aria-describedby={description ? descriptionId : undefined}
         aria-label={!title ? ariaLabel : undefined}
         ref={dialogRef}
       >
@@ -133,9 +151,14 @@ export const Modal: React.FC<ModalProps> = ({
             <CancelIcon />
           </button>
         </div>
+        {description && (
+          <p id={descriptionId} className={styles.description} style={{ marginTop: 0 }}>
+            {description}
+          </p>
+        )}
         <div className={styles.body}>{children}</div>
         {(primaryAction || secondaryAction) && (
-          <div className={styles.footer}>
+          <div className={styles.footer} role="group" aria-label="Dialog actions">
             {secondaryAction && (
               <button
                 type="button"

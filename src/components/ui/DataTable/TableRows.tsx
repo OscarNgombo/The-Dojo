@@ -1,6 +1,7 @@
-import type { ColumnDef, ActionItem } from '../../../types/dataTable'
+import type { ColumnDef, ActionItem } from '@/types/dataTable.ts'
 import styles from './TableRows.module.css'
 import { Button } from '../Button'
+import React from "react";
 
 interface TableRowsProps<T> {
   data: T[]

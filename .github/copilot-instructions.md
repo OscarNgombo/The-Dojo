@@ -354,6 +354,14 @@ function App() {
 - Use specific vocabulary (large/small, primary/secondary, heavy/light)
 - Apply fundamental principles: scale, hierarchy, balance, contrast, Gestalt principles
 - Design to follow mobile-first approach (responsive design, fluid layouts) this is suggested but not mandatory
+- Use pixels for design precision,
+- rem for scalable layouts, consistent scaling, typography system
+- em for component based scalability, buttons, spacing
+- % or Max/Min with PX for fluid layouts, containers, grids
+- vh/vw for full screen sections, hero areas basically for responsive headlines, hero text such.
+- Line height: 1.4-1.6 for readability
+- Font sizes: 14px base, 16px for body text, 20px+ for headings
+- Spacing: 8px base unit, multiples for margins/padding
 
 ### Visual Hierarchy & Scale
 

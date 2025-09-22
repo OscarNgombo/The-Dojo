@@ -1,24 +1,24 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useMemo, useState, useCallback } from 'react'
-import { usePagination } from '../../../hooks/usePagination'
-import { useUsers } from '../../../providers'
-import { useToast } from '../../../providers'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { usePagination } from '@/hooks/usePagination.ts'
+import { useToast, useUsers } from '@/providers'
 import {
-  DataTable,
-  Spinner,
-  Badge,
-  RowActions,
-  RoleToggle,
-  Modal,
-  Button,
   AccessDenied,
-} from '../../../components/ui'
-import type { ColumnDef } from '../../../types/dataTable'
-import type { User } from '../../../types'
-import { formatDate } from '../../../utils/dateUtils'
-import { encodeId } from '../../../utils/idCodec'
-import { useRequireAdmin } from '../../../hooks/useAuthGuards'
-import { useQueryState } from '../../../hooks/useQueryState'
+  Avatar,
+  Badge,
+  Button,
+  DataTable,
+  Modal,
+  RoleToggle,
+  RowActions,
+  Spinner,
+} from '@/components/ui'
+import type { ColumnDef } from '@/types/dataTable.ts'
+import type { User } from '@/types'
+import { formatDate } from '@/utils/dateUtils.ts'
+import { encodeId } from '@/utils/idCodec.ts'
+import { useRequireAdmin } from '@/hooks/useAuthGuards.ts'
+import { useQueryState } from '@/hooks/useQueryState.ts'
 
 export const Route = createFileRoute('/admin/users/')({
   component: UserManagementPage,
@@ -118,7 +118,7 @@ function UserManagementPage() {
         sortDirection: 'asc',
       })
     },
-    [filterRole, filterStatus, searchTerm],
+    [filterRole, filterStatus, searchTerm, actions],
   )
 
   useEffect(() => {
@@ -150,7 +150,7 @@ function UserManagementPage() {
         return aId - bId
       })
     }
-    const sorted = [...users].sort((a: any, b: any) => {
+    return [...users].sort((a: any, b: any) => {
       const aVal = a[sortField]
       const bVal = b[sortField]
       if (aVal == null && bVal == null) return 0
@@ -167,7 +167,6 @@ function UserManagementPage() {
       if (aStr > bStr) return sortDirection === 'asc' ? 1 : -1
       return 0
     })
-    return sorted
   }, [users, sortField, sortDirection])
 
   const handleRoleChange = async (
@@ -242,6 +241,18 @@ function UserManagementPage() {
 
   const columns: ColumnDef<User>[] = [
     { accessorKey: 'id', header: 'User ID' },
+    {
+      accessorKey: 'avatar_url',
+      header: 'Avatar',
+      cell: ({ row }) => (
+        <Avatar
+          name={row.original.name}
+          src={row.original.avatar_url}
+          size="small"
+          aria-label={`${row.original.name} avatar`}
+        />
+      ),
+    },
     { accessorKey: 'name', header: 'Name' },
     { accessorKey: 'email', header: 'Email' },
     {
