@@ -1,0 +1,28 @@
+.wrapper {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .header { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+}
+.searchForm {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+.error { color: #b00020; font-size: 14px; }
+.empty { padding: 24px 8px; font-size: 14px; color: #444; }
+.select { padding: 6px 8px; font-size: 14px; border: 1px solid #ccc; border-radius:4px; background:#fff; }
+.select:focus { outline:2px solid #4d90fe; outline-offset:2px; }

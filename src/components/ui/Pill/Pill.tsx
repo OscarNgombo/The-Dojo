@@ -30,14 +30,31 @@ export const Pill: React.FC<PillProps> = ({
       onClear()
     }, 140)
   }
-  const Tag: any = onClick ? 'button' : 'span'
-  const tagProps: any = onClick
+  // If both onClick (primary action) and onClear (secondary action) are present
+  // we render a non-button container to avoid nested <button> elements while
+  // preserving accessible button semantics via role+tabIndex.
+  const useContainerDiv = onClick && onClear
+  const Tag: any = useContainerDiv ? 'div' : onClick ? 'button' : 'span'
+  const tagProps: any = useContainerDiv
     ? {
-        type: 'button',
+        role: 'button',
+        tabIndex: 0,
         onClick,
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onClick?.()
+          }
+        },
         'aria-label': clickableAriaLabel || label,
       }
-    : {}
+    : onClick
+      ? {
+          type: 'button',
+          onClick,
+          'aria-label': clickableAriaLabel || label,
+        }
+      : {}
   return (
     <Tag
       {...tagProps}

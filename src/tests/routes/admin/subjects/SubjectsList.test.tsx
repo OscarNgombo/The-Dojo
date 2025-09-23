@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import SubjectsList from '@/features/subjects/SubjectsList'
-import { RootTestProviders } from '@/tests/RootTestProviders'
+import '@testing-library/jest-dom'
+import SubjectsList from '../../../../features/subjects/SubjectsList'
+import { RootTestProviders } from '../../../RootTestProviders'
 
 vi.mock('@/hooks/useAuthGuards', () => ({
   useRequireAdmin: () => ({
@@ -37,7 +38,7 @@ vi.mock('@/hooks/useSubjectsList', () => ({
 }))
 
 describe('SubjectsList (isolated)', () => {
-  it('renders heading and search input', async () => {
+  it('renders heading and can toggle search input', async () => {
     render(
       <RootTestProviders>
         <SubjectsList />
@@ -46,6 +47,9 @@ describe('SubjectsList (isolated)', () => {
     expect(
       await screen.findByRole('heading', { name: /subjects/i }),
     ).toBeInTheDocument()
-    expect(screen.getByLabelText(/search subjects/i)).toBeInTheDocument()
+    const toggleBtn = screen.getByRole('button', { name: /show search/i })
+    toggleBtn.click()
+    // Wait for the input to appear after state update
+    expect(await screen.findByLabelText(/search subjects/i)).toBeInTheDocument()
   })
 })

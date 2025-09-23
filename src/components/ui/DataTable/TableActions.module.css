@@ -12,6 +12,15 @@
   align-items: center;
   gap: 10px;
 }
+button.clickable.pill.info {
+  background: var(--warning-color);
+}
+.headerStart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 640px;
+}
 
 .fadeSlideIn {
   animation: fadeSlideIn 160ms ease-out;
@@ -22,13 +31,25 @@
 }
 
 @keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeSlideOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-4px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 .actionIcon {
@@ -41,24 +62,62 @@
   color: var(--dark-color);
 }
 
-.rightActions button {
-  position: relative;
-  border-radius: 6px;
-  transition: var(--transition);
-  color: var(--primary-color); 
+/* Force primary color (override ghost neutral) */
+.actionBtnPrimary {
+  color: var(--primary-color) !important;
+  border: 1px solid var(--border-color);
 }
 
-.rightActions button:hover {
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--dark-color);
-}
-
-.rightActions button:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-.rightActions button svg {
+.actionBtnPrimary svg {
   fill: currentColor;
   stroke: currentColor;
+}
+
+/* Force any nested path/circle/rect using higher specificity to avoid accidental overrides */
+.actionBtnPrimary svg path,
+.actionBtnPrimary svg circle,
+.actionBtnPrimary svg rect,
+.actionBtnPrimary svg line,
+.actionBtnPrimary svg polyline,
+.actionBtnPrimary svg polygon {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+.actionBtnPrimary[data-active='true'] {
+  background: var(--warning-color);
+  color: #ffffff;
+  border-color: var(--warning-color);
+}
+
+.actionBtnPrimary[data-active='true'] svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.actionBtnPrimary[data-active='true'] svg path,
+.actionBtnPrimary[data-active='true'] svg circle,
+.actionBtnPrimary[data-active='true'] svg rect,
+.actionBtnPrimary[data-active='true'] svg line,
+.actionBtnPrimary[data-active='true'] svg polyline,
+.actionBtnPrimary[data-active='true'] svg polygon {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+.actionBtnPrimary:not([data-active='true']):hover {
+  background: var(--primary-color-alpha-12);
+  border-color: var(--primary-color);
+  color: var(--primary-color) !important;
+}
+
+button.actionBtnPrimary.ghost {
+  color: var(--primary-color) !important;
+}
+
+button.actionBtnPrimary.ghost[data-active='true'] {
+  background: var(--warning-color);
+  color: #ffffff;
+  border-color: var(--warning-color);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.4);
 }

@@ -1,16 +1,12 @@
-import React from 'react';
-import { Spinner } from '../Spinner';
+import React from 'react'
+import { Spinner } from '../Spinner'
 
 interface CenteredPageSpinnerProps {
-  size?: 'small' | 'medium' | 'large';
-  color?: 'primary' | 'secondary' | 'light' | 'dark';
-  minHeight?: string; // allow override if page shorter
+  size?: 'small' | 'medium' | 'large'
+  color?: 'primary' | 'secondary' | 'light' | 'dark'
+  minHeight?: string
 }
 
-/**
- * Full-page centered loading indicator used as a Suspense fallback.
- * Consolidates layout duplication across route wrappers.
- */
 const CenteredPageSpinner: React.FC<CenteredPageSpinnerProps> = ({
   size = 'large',
   color = 'primary',
@@ -30,7 +26,7 @@ const CenteredPageSpinner: React.FC<CenteredPageSpinnerProps> = ({
     >
       <Spinner size={size} color={color} />
     </div>
-  );
-};
+  )
+}
 
-export default CenteredPageSpinner;
+export default CenteredPageSpinner

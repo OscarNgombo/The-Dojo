@@ -1,6 +1,6 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { ErrorBoundary } from '../components/ErrorBoundary'
-import { useAuth } from '../providers'
+import { useAuth } from '../providers/AuthProvider'
 import { useEffect } from 'react'
 import type { User } from '../types'
 import { router } from '../main'
@@ -13,6 +13,7 @@ import {
   ToastProvider,
   UsersProvider,
   SubjectsProvider,
+  TasksProvider,
 } from '../providers'
 import { Toast } from '@/components/ui/Toast'
 
@@ -41,6 +42,7 @@ export const Route = createRootRoute({
         <AuthProvider>
           <UsersProvider>
             <SubjectsProvider>
+              <TasksProvider>
               <ErrorBoundary>
                 <AuthSync />
                 <div className="main-content">
@@ -48,6 +50,7 @@ export const Route = createRootRoute({
                 </div>
                 <Toast />
               </ErrorBoundary>
+              </TasksProvider>
               {isDevelopment && (
                 <TanstackDevtools
                   config={{

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRequireAdmin } from '@/hooks/useAuthGuards'
 import {
   Spinner,
@@ -15,6 +15,7 @@ import { formatDate } from '@/utils/dateUtils'
 import { useNavigate } from '@tanstack/react-router'
 import { encodeId } from '@/utils/idCodec'
 import { useSubjectsList } from '@/hooks/useSubjectsList'
+import { SearchIcon } from '@/components/Icons'
 
 export const SubjectsList: React.FC = () => {
   const {
@@ -60,6 +61,13 @@ export const SubjectsList: React.FC = () => {
   } = filters
   const { totalPages, totalCount, currentPage } = listPagination
   const [isFilterOpen, setFilterOpen] = useState(false)
+  const [isSortOpen, setSortOpen] = useState(false)
+  const [showSearchBar, setShowSearchBar] = useState(searchTerm !== '')
+  const searchInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Local UI state for sort modal - derive from hook state when opening
+  const [sortField, setSortField] = useState<string>('')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   useEffect(() => {
     if (currentPage && currentPage !== page) setPage(currentPage)
@@ -68,6 +76,9 @@ export const SubjectsList: React.FC = () => {
     () => [searchTerm !== '', activeFilter !== 'all'].filter(Boolean).length,
     [searchTerm, activeFilter],
   )
+  // Treat local sort like filters for active state pill display
+  const sortActive = list.sortState?.key !== null && list.sortState?.key !== undefined
+  const sortActiveCount = sortActive ? 1 : 0
   const displayedSubjects = useMemo(() => [...subjects], [subjects])
 
   const handleDelete = async (subject: Subject) => {
@@ -81,7 +92,6 @@ export const SubjectsList: React.FC = () => {
   }
 
   const columns: ColumnDef<Subject>[] = [
-    { accessorKey: 'id', header: 'ID' },
     { accessorKey: 'name', header: 'Name' },
     {
       accessorKey: 'description',
@@ -172,33 +182,7 @@ export const SubjectsList: React.FC = () => {
   return (
     <div style={{ padding: '1rem' }}>
       <h1>Subjects</h1>
-      <div style={{ marginBottom: '0.75rem' }}>
-        <label
-          htmlFor="subject-search"
-          style={{
-            display: 'block',
-            fontWeight: 600,
-            fontSize: 14,
-            marginBottom: 4,
-          }}
-        >
-          Search Subjects
-        </label>
-        <input
-          id="subject-search"
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by name or description"
-          style={{
-            width: '33%',
-            padding: '8px',
-            borderRadius: 4,
-            border: '1px solid var(--border-color)',
-          }}
-          aria-label="Search subjects by name or description"
-        />
-      </div>
+      {/* unified header actions handled by DataTable via headerStart */}
       <DataTable
         columns={columns}
         data={displayedSubjects}
@@ -211,12 +195,77 @@ export const SubjectsList: React.FC = () => {
         totalCount={totalCount}
         pageSize={10}
         showFilterButton={!filterCount}
+  showSortButton={!sortActive}
         filterActive={
           filterCount
             ? { count: filterCount, onClear: () => reset() }
             : undefined
         }
+        sortActive={
+          sortActive
+            ? {
+                count: sortActiveCount,
+                onClear: () => {
+                  list.clearSort()
+                  setSortField('')
+                  setSortDirection('asc')
+                },
+              }
+            : undefined
+        }
+        headerStart={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              type="button"
+              onClick={() => {
+                setShowSearchBar((s) => !s)
+                setTimeout(() => {
+                  if (!showSearchBar) searchInputRef.current?.focus()
+                }, 0)
+                if (showSearchBar && searchTerm) {
+                  setSearchTerm('')
+                }
+              }}
+              aria-label={showSearchBar ? 'Hide search' : 'Show search'}
+              style={{
+                background: '#1d7dd7',
+                border: 'none',
+                padding: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 4,
+                cursor: 'pointer',
+                color: '#fff',
+              }}
+            >
+              <SearchIcon />
+            </button>
+            {showSearchBar && (
+              <input
+                ref={searchInputRef}
+                id="subject-search"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search subjects..."
+                style={{
+                  flex: 1,
+                  minWidth: 160,
+                  padding: '8px',
+                  borderRadius: 4,
+                  border: '1px solid var(--border-color)',
+                }}
+                aria-label="Search subjects"
+              />
+            )}
+          </div>
+        }
         onFilter={() => setFilterOpen(true)}
+        onSort={() => {
+          // Initialize modal state from current sort state (derive from first subject ordering heuristically not tracked here)
+          setSortOpen(true)
+        }}
         onRefresh={() => refresh()}
         leftActionsExtra={
           <Button
@@ -236,10 +285,78 @@ export const SubjectsList: React.FC = () => {
         }
       />
       <Modal
+        open={isSortOpen}
+        onClose={() => setSortOpen(false)}
+        title="Sort Subjects"
+        primaryAction={{
+          label: 'Apply',
+          onClick: () => {
+            if (!sortField) {
+              list.clearSort()
+            } else {
+              list.setSortCustom(sortField as keyof Subject, sortDirection)
+            }
+            setSortOpen(false)
+          },
+          autoFocus: true,
+        }}
+        secondaryAction={{
+          label: 'Reset',
+          onClick: () => {
+            setSortField('')
+            setSortDirection('asc')
+            list.clearSort()
+            setSortOpen(false)
+          },
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <label style={{ display: 'block', fontWeight: 600, marginBottom: 4 }}>
+              Field
+            </label>
+            <select
+              value={sortField}
+              onChange={(e) => setSortField(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px',
+                borderRadius: 4,
+                border: '1px solid var(--border-color)',
+              }}
+            >
+              <option value="">None</option>
+              <option value="name">Name</option>
+              <option value="createdAt">Created</option>
+              <option value="isActive">Status</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontWeight: 600, marginBottom: 4 }}>
+              Direction
+            </label>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <Button
+                variant={sortDirection === 'asc' ? 'primary' : 'secondary'}
+                onClick={() => setSortDirection('asc')}
+              >
+                Asc
+              </Button>
+              <Button
+                variant={sortDirection === 'desc' ? 'primary' : 'secondary'}
+                onClick={() => setSortDirection('desc')}
+              >
+                Desc
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+      <Modal
         open={isFilterOpen}
         onClose={() => setFilterOpen(false)}
         title="Filter Subjects"
-        description="Adjust filtering options for the subjects table. Use status to narrow results."
+        //description="Adjust filtering options for the subjects table. Use status to narrow results."
         primaryAction={{
           label: 'Apply',
           onClick: () => setFilterOpen(false),

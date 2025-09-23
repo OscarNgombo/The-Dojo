@@ -10,6 +10,7 @@ import {
   TasksManageIcon,
   SubjectsIcon,
   SideMenuIcon,
+  UserIcon,
 } from '../Icons'
 import { useAuth } from '../../providers/AuthProvider'
 
@@ -59,6 +60,9 @@ export const AdminLayout = () => {
         <div className={styles.headerRight}>
           <button className={styles.notificationBtn}>
             <NotificationIcon />
+          </button>
+          <button className={styles.profileBtn}>
+            <UserIcon />
           </button>
           <div className={styles.userInfo}>
             <span>{user?.name || 'Admin'}</span>

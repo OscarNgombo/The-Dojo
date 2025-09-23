@@ -6,6 +6,7 @@ import { Pill } from '../Pill/Pill'
 
 interface TableActionsProps {
   leftActionsExtra?: React.ReactNode
+  headerStart?: React.ReactNode
   rightBadges?: React.ReactNode
   rightActionsExtra?: React.ReactNode
   showSortFilter?: boolean
@@ -20,6 +21,7 @@ interface TableActionsProps {
 
 export const TableActions: React.FC<TableActionsProps> = ({
   leftActionsExtra,
+  headerStart,
   rightBadges,
   rightActionsExtra,
   showSortFilter = true,
@@ -38,6 +40,11 @@ export const TableActions: React.FC<TableActionsProps> = ({
   return (
     <div className={styles.tableActions}>
       <div className={styles.leftActions}>
+        {headerStart && (
+          <div className={styles.headerStart} key="header-start">
+            {headerStart}
+          </div>
+        )}
         {leftActionsExtra && (
           <div className={styles.fadeSlideIn} key="left-extra">
             {leftActionsExtra}
@@ -63,7 +70,14 @@ export const TableActions: React.FC<TableActionsProps> = ({
               />
             ) : (
               canShowSort && (
-                <Button onClick={onSort} aria-label="Sort">
+                <Button
+                  onClick={onSort}
+                  aria-label="Sort"
+                  variant="ghost"
+                  title="Sort"
+                  className={styles.actionBtnPrimary}
+                  data-active={!!sortActive || undefined}
+                >
                   <SortIcon />
                 </Button>
               )
@@ -80,7 +94,14 @@ export const TableActions: React.FC<TableActionsProps> = ({
               />
             ) : (
               canShowFilter && (
-                <Button onClick={onFilter} aria-label="Filter">
+                <Button
+                  onClick={onFilter}
+                  aria-label="Filter"
+                  variant="ghost"
+                  title="Filter"
+                  className={styles.actionBtnPrimary}
+                  data-active={!!filterActive || undefined}
+                >
                   <FilterIcon />
                 </Button>
               )
@@ -97,7 +118,14 @@ export const TableActions: React.FC<TableActionsProps> = ({
             {rightActionsExtra}
           </div>
         )}
-        <Button onClick={onRefresh} aria-label="Refresh" key="refresh">
+        <Button
+          onClick={onRefresh}
+          aria-label="Refresh"
+          key="refresh"
+          variant="ghost"
+          title="Refresh"
+          className={styles.actionBtnPrimary}
+        >
           <RefreshIcon />
         </Button>
       </div>

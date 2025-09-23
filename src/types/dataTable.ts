@@ -34,6 +34,7 @@ export interface DataTableProps<T> {
   rightBadges?: React.ReactNode
   rightActionsExtra?: React.ReactNode
   leftActionsExtra?: React.ReactNode
+  headerStart?: React.ReactNode
   showFooter?: boolean
   totalPages?: number
   currentPage?: number

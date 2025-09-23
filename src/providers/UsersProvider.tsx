@@ -8,6 +8,9 @@ import {
 } from 'react'
 import { usersApi } from '@/api'
 import type { User } from '@/types'
+import { useApiCall } from '@/hooks/useApiCall'
+import { useMutate } from '@/hooks/useMutate'
+import { refetchUsers } from '@/utils/refetchRollback'
 
 interface UsersState {
   users: User[]
@@ -22,8 +25,6 @@ interface FetchUsersOptions {
   role?: 'admin' | 'trainee'
   status?: 'approved' | 'pending' | 'rejected'
   search?: string
-  sortField?: 'id' | 'name' | 'email' | 'created_at'
-  sortDirection?: 'asc' | 'desc'
 }
 
 interface UsersActions {
@@ -64,64 +65,100 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
     options?: FetchUsersOptions
   }>({ page: 1, pageSize: 10 })
 
+  const usersCall = useApiCall<{
+    records: User[]
+    current_page: number
+    last_page: number
+    total_count: number
+  }>()
+
+  const updateStatusMut = useMutate<
+    { id: string; status: 'approved' | 'pending' | 'rejected' },
+    { user: User; message?: string }
+  >({
+    mutateFn: ({ id, status }) => usersApi.updateUserStatus(id, status),
+    optimisticUpdate: ({ id, status }) => {
+      setState((prev) => ({
+        ...prev,
+        users: prev.users.map((u) => (u.id === id ? { ...u, status } : u)),
+      }))
+    },
+    rollback: () => {
+      void refetchUsers(usersCall.execute, lastQueryRef.current)
+    },
+    autoToast: { success: true, error: true },
+    messages: { success: (_, { status }) => `Status updated to ${status}` },
+  })
+
+  const updateRoleMut = useMutate<
+    { id: string; role: 'admin' | 'trainee' },
+    { user: User; message?: string }
+  >({
+    mutateFn: ({ id, role }) => usersApi.updateUserRole(id, role),
+    optimisticUpdate: ({ id, role }) => {
+      setState((prev) => ({
+        ...prev,
+        users: prev.users.map((u) => (u.id === id ? { ...u, role } : u)),
+      }))
+    },
+    rollback: () => {
+      void refetchUsers(usersCall.execute, lastQueryRef.current)
+    },
+    autoToast: { success: true, error: true },
+    messages: { success: (_, { role }) => `Role updated to ${role}` },
+  })
+
+  const deleteUserMut = useMutate<{ id: string }, { message?: string }>({
+    mutateFn: ({ id }) => usersApi.deleteUser(id),
+    optimisticUpdate: ({ id }) => {
+      setState((prev) => ({
+        ...prev,
+        users: prev.users.filter((u) => u.id !== id),
+        totalCount: prev.totalCount > 0 ? prev.totalCount - 1 : 0,
+      }))
+    },
+    rollback: () => {
+      void refetchUsers(usersCall.execute, lastQueryRef.current)
+    },
+    autoToast: { success: true, error: true },
+    messages: { success: 'User deleted' },
+  })
+
   const actions = useMemo<UsersActions>(
     () => ({
       fetchUsers: async (page, pageSize = 10, options) => {
-        setState((prev) => ({ ...prev, loading: true, error: null }))
-        try {
-          const response = await usersApi.getUsers(
+        lastQueryRef.current = { page, pageSize, options }
+        const data = await usersCall.execute(async () => {
+          const raw = await usersApi.getUsers(
             page,
             pageSize,
             options?.role,
             options?.status,
             options?.search,
-            options?.sortField,
-            options?.sortDirection,
           )
-          lastQueryRef.current = { page, pageSize, options }
-          setState((prev) => ({
-            ...prev,
-            loading: false,
-            users: Array.isArray(response.records) ? response.records : [],
-            currentPage: response.current_page,
-            totalPages: response.last_page,
-            totalCount: response.total_count,
-          }))
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : 'An unknown error occurred'
-          setState((prev) => ({ ...prev, loading: false, error: errorMessage }))
-        }
+          return { success: true, data: raw }
+        })
+        setState((prev) => ({
+          ...prev,
+          loading: usersCall.loading,
+          error: usersCall.error,
+          users: Array.isArray(data?.records) ? data!.records : [],
+          currentPage: data?.current_page ?? prev.currentPage,
+          totalPages: data?.last_page ?? prev.totalPages,
+          totalCount: data?.total_count ?? prev.totalCount,
+        }))
       },
       updateUserStatus: async (userId, status) => {
-        try {
-          await usersApi.updateUserStatus(userId, status)
-          const { page, pageSize, options } = lastQueryRef.current
-          await actions.fetchUsers(page, pageSize, options)
-        } catch (error) {
-          console.error('Failed to update user status:', error)
-        }
+        await updateStatusMut.mutate({ id: userId, status })
       },
       updateUserRole: async (userId, role) => {
-        try {
-          await usersApi.updateUserRole(userId, role)
-          const { page, pageSize, options } = lastQueryRef.current
-          await actions.fetchUsers(page, pageSize, options)
-        } catch (error) {
-          console.error('Failed to update user role:', error)
-        }
+        await updateRoleMut.mutate({ id: userId, role })
       },
       deleteUser: async (userId) => {
-        try {
-          await usersApi.deleteUser(userId)
-          const { page, pageSize, options } = lastQueryRef.current
-          await actions.fetchUsers(page, pageSize, options)
-        } catch (error) {
-          console.error('Failed to delete user:', error)
-        }
+        await deleteUserMut.mutate({ id: userId })
       },
     }),
-    [],
+    [usersCall, updateStatusMut, updateRoleMut, deleteUserMut],
   )
 
   const contextValue = useMemo(

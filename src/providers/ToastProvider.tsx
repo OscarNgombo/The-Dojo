@@ -60,7 +60,6 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
-      {/* Live region container for assistive tech (polite by default) */}
       <div
         aria-live="polite"
         aria-atomic="true"
@@ -76,7 +75,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
           border: 0,
         }}
       >
-        {toasts.map(t => (
+        {toasts.map((t) => (
           <div key={t.id}>{t.message}</div>
         ))}
       </div>

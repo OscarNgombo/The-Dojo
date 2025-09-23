@@ -16,30 +16,6 @@
   cursor: not-allowed;
 }
 
-.primary {
-  background-color: var(--primary-color);
-  color: #ffffff;
-}
-
-.primary:hover:not(:disabled) {
-  opacity: var(--hover-opacity);
-}
-
-.secondary {
-  background-color: var(--light-color);
-  color: var(--dark-color);
-  border: 1px solid var(--border-color);
-}
-
-.secondary:hover:not(:disabled) {
-  background-color: var(--border-color);
-}
-
-.danger {
-  background-color: var(--danger-color);
-  color: #ffffff;
-}
-
 .danger:hover:not(:disabled) {
   opacity: var(--hover-opacity);
 }
@@ -70,7 +46,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px; 
+  width: 32px;
   height: 32px;
   color: var(--primary-color);
   border-radius: 6px;
@@ -88,6 +64,47 @@
   background-color: var(--primary-color-alpha-12);
 }
 
+button.ghost {
+  background-color: var(--light-color);
+  border: 1px solid var(--border-color);
+  color: var(--dark-color);
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+button.ghost svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+button.ghost:hover:not(:disabled),
+button.ghost:focus-visible {
+  background: var(--primary-color-alpha-12);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+button.ghost:focus-visible {
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.35);
+  outline: none;
+}
+
+button.ghost:active {
+  background: var(--warning-color);
+}
+
 .small {
   padding: 8px 12px;
   font-size: var(--small-font-size);
@@ -97,7 +114,10 @@
   padding: 0.5rem 1rem;
   font-size: var(--text-font-size);
 }
-
+button.primary {
+  background: var(--primary-color);
+  color: white;
+}
 .large {
   padding: 0.75rem 1.5rem;
   font-size: var(--subheader-font-size);
@@ -105,6 +125,14 @@
 
 .fullWidth {
   width: 100%;
+}
+.danger {
+  background: var(--danger-color);
+  color: #ffffff;
+}
+.secondary {
+  background: var(--secondary-color);
+  color: #ffffff;
 }
 
 @media (max-width: 576px) {

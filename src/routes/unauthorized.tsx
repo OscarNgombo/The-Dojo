@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AccessDenied } from '../components/ui'
-import { useAuth } from '../providers'
+import { useAuth } from '../providers/AuthProvider'
 import { useEffect } from 'react'
 import { navigateToRole } from '../utils/roleRedirect'
 import { debugAuth } from '../utils/debug'

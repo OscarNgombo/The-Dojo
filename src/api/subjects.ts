@@ -22,9 +22,17 @@ export const subjectService = {
   getSubjects: async (
     page = 1,
     pageSize = 10,
+    params?: { search?: string; isActive?: boolean },
   ): Promise<ApiResponse<PaginatedResponse<Subject>>> => {
+    const qp = new URLSearchParams()
+    qp.set('page', String(page))
+    qp.set('pageSize', String(pageSize))
+    if (params?.search) qp.set('search', params.search)
+    if (typeof params?.isActive === 'boolean') {
+      qp.set('isActive', String(params.isActive))
+    }
     return apiService.get<PaginatedResponse<Subject>>(
-      `/admin/subjects/?page=${page}&pageSize=${pageSize}`,
+      `/admin/subjects/?${qp.toString()}`,
     )
   },
 

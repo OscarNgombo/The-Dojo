@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Spinner } from '../components/ui'
-import { useAuth } from '../providers'
+import { useAuth } from '../providers/AuthProvider'
 import { roleTarget } from '../utils/roleRedirect'
 
 export const Route = createFileRoute('/')({

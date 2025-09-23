@@ -2,11 +2,16 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { vi, describe, test, expect } from 'vitest'
 import { UsersProvider, useUsers } from '../providers/UsersProvider'
+import { ToastProvider } from '../providers/ToastProvider'
 import type { ReactNode } from 'react'
 import * as api from '../api'
 
 function wrapper({ children }: { children: ReactNode }) {
-  return <UsersProvider>{children}</UsersProvider>
+  return (
+    <ToastProvider>
+      <UsersProvider>{children}</UsersProvider>
+    </ToastProvider>
+  )
 }
 
 describe('UsersProvider', () => {

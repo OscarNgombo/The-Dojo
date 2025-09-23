@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './AuthProvider'
 import { ToastProvider, useToast } from './ToastProvider'
 import { UsersProvider, useUsers } from './UsersProvider'
 import { SubjectsProvider, useSubjects } from './SubjectsProvider'
+import { TasksProvider, useTasks } from './TasksProvider'
 import { AdminLayoutProvider, useAdminLayout } from './AdminLayoutProvider'
 
 export {
@@ -16,6 +17,8 @@ export {
   useUsers,
   SubjectsProvider,
   useSubjects,
+  TasksProvider,
+  useTasks,
   AdminLayoutProvider,
   useAdminLayout,
 }

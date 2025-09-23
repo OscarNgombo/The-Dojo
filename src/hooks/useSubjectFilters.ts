@@ -17,7 +17,10 @@ export const useSubjectFilters = (): SubjectFiltersState => {
     route: '/admin/subjects/',
     debounceMs: 400,
   })
-  const [activeFilter, setActiveFilter] = useQueryState<'all' | 'active' | 'inactive', '/admin/subjects/'>({
+  const [activeFilter, setActiveFilter] = useQueryState<
+    'all' | 'active' | 'inactive',
+    '/admin/subjects/'
+  >({
     key: 'active',
     defaultValue: 'all',
     route: '/admin/subjects/',
@@ -36,5 +39,13 @@ export const useSubjectFilters = (): SubjectFiltersState => {
     setPage(1)
   }
 
-  return { search, activeFilter, page, setSearch, setActiveFilter, setPage, reset }
+  return {
+    search,
+    activeFilter,
+    page,
+    setSearch,
+    setActiveFilter,
+    setPage,
+    reset,
+  }
 }

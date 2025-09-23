@@ -5,6 +5,7 @@ import {
 	ToastProvider,
 	UsersProvider,
 	SubjectsProvider,
+	TasksProvider,
 } from '../providers'
 
 // Canonical provider stack for tests
@@ -13,7 +14,9 @@ export const RootTestProviders: React.FC<{ children: React.ReactNode }> = ({ chi
 		<ToastProvider>
 			<AuthProvider>
 				<UsersProvider>
-					<SubjectsProvider>{children}</SubjectsProvider>
+					<SubjectsProvider>
+						<TasksProvider>{children}</TasksProvider>
+					</SubjectsProvider>
 				</UsersProvider>
 			</AuthProvider>
 		</ToastProvider>

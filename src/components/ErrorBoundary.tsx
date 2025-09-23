@@ -3,6 +3,12 @@ import * as React from 'react'
 interface ErrorBoundaryProps {
   children: React.ReactNode
   fallback?: React.ReactNode
+  onRetry?: () => void
+  renderFallback?: (args: {
+    error: Error | null
+    retry: () => void
+  }) => React.ReactNode
+  resetKeys?: unknown[]
 }
 
 interface ErrorBoundaryState {
@@ -15,6 +21,7 @@ export class ErrorBoundary extends React.Component<
   ErrorBoundaryState
 > {
   state: ErrorBoundaryState = { hasError: false, error: null }
+  private renderCycle = 0
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error }
@@ -24,12 +31,39 @@ export class ErrorBoundary extends React.Component<
     console.error('[ErrorBoundary] Caught error', error, errorInfo)
   }
 
-  handleRetry = () => {
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    if (this.props.resetKeys && prevProps.resetKeys) {
+      const changed = this.props.resetKeys.some(
+        (k, i) => k !== prevProps.resetKeys![i],
+      )
+      if (changed && this.state.hasError) {
+        this.resetBoundary()
+      }
+    }
+  }
+
+  resetBoundary = () => {
+    this.renderCycle++
     this.setState({ hasError: false, error: null })
+  }
+
+  handleRetry = () => {
+    this.resetBoundary()
+    try {
+      this.props.onRetry?.()
+    } catch (e) {
+      console.error('[ErrorBoundary] onRetry threw', e)
+    }
   }
 
   render() {
     if (this.state.hasError) {
+      if (this.props.renderFallback) {
+        return this.props.renderFallback({
+          error: this.state.error,
+          retry: this.handleRetry,
+        })
+      }
       if (this.props.fallback) return this.props.fallback
       return (
         <div
@@ -84,6 +118,10 @@ export class ErrorBoundary extends React.Component<
         </div>
       )
     }
-    return this.props.children
+    return (
+      <React.Fragment key={this.renderCycle}>
+        {this.props.children}
+      </React.Fragment>
+    )
   }
 }

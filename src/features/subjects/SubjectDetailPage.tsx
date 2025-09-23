@@ -4,7 +4,15 @@ import { subjectService, normalizeSubject } from '@/api/subjects'
 import { formatDate } from '@/utils/dateUtils'
 import { useRequireAdmin } from '@/hooks/useAuthGuards'
 import { decodeId } from '@/utils/idCodec'
-import { AccessDenied, Badge, Button, Spinner, InfoBlock } from '@/components/ui'
+import {
+  AccessDenied,
+  Badge,
+  Button,
+  Spinner,
+  InfoBlock,
+  TasksAside,
+} from '@/components/ui'
+import { useSubjectTasks } from '@/hooks/useSubjectTasks'
 import { useSubjects } from '@/providers'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -30,6 +38,15 @@ const SubjectDetailPage: React.FC<SubjectDetailPageProps> = ({
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const { actions } = useSubjects()
+
+  // Always call hooks before any conditional returns to preserve hook order.
+  // Provide a subjectId only when the user is authenticated & authorized to avoid unnecessary fetch attempts.
+  const {
+    tasks,
+    loading: tasksLoading,
+    error: tasksError,
+    refetch,
+  } = useSubjectTasks(isAuthenticated && isAuthorized ? decodedId : null)
 
   useEffect(() => {
     if (!isAuthorized || !isAuthenticated) return
@@ -120,185 +137,218 @@ const SubjectDetailPage: React.FC<SubjectDetailPageProps> = ({
   }
 
   return (
-    <div
-      style={{
-        padding: '1rem',
-        maxWidth: '860px',
-        margin: '0 auto',
-        background: 'var(--light-color)',
-        border: '1px solid var(--border-color)',
-        borderRadius: 'var(--border-radius)',
-        boxShadow: 'var(--box-shadow)',
-      }}
-    >
+    <div style={{ padding: '1rem' }}>
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginBottom: 16,
-          gap: 16,
-          flexWrap: 'wrap',
+          display: 'grid',
+          gridTemplateColumns: '2fr 1fr',
+          gap: '24px',
+          alignItems: 'start',
         }}
       >
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Button
-            variant="text"
-            onClick={() => navigate({ to: '/admin/subjects' })}
-            style={{ padding: 0, color: 'var(--primary-color)' }}
-          >
-            ← Back
-          </Button>
-          {!editMode && (
-            <Button variant="secondary" onClick={() => setEditMode(true)}>
-              Edit
-            </Button>
-          )}
-          {editMode && (
-            <>
-              <Button variant="primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save'}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setEditMode(false)
-                  setName(subject.name)
-                  setDescription(subject.description)
-                  setActive(subject.isActive)
-                }}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
-            </>
-          )}
-          <Button variant="danger" onClick={handleDelete} disabled={saving}>
-            Delete
-          </Button>
-        </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span
-            style={{
-              fontSize: 'var(--small-font-size)',
-              color: 'var(--secondary-color)',
-            }}
-          >
-            Status:
-          </span>
-          <Badge variant={subject.isActive ? 'success' : 'danger'}>
-            {subject.isActive ? 'Active' : 'Inactive'}
-          </Badge>
-        </div>
-      </div>
-      {!editMode && (
-        <header style={{ marginBottom: '24px' }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 'var(--header-font-size)',
-              color: 'var(--dark-color)',
-            }}
-          >
-            {subject.name}
-          </h1>
-          <p
-            style={{
-              margin: '4px 0 8px',
-              color: 'var(--secondary-color)',
-              fontSize: 'var(--small-font-size)',
-              lineHeight: 1.4,
-            }}
-          >
-            {subject.description || 'No description provided.'}
-          </p>
-        </header>
-      )}
-      {editMode && (
-        <section
+        <div
           style={{
-            marginBottom: 24,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
+            background: 'var(--light-color)',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--border-radius)',
+            boxShadow: 'var(--box-shadow)',
+            padding: '1rem',
+            width: '100%',
+            margin: '0 auto',
           }}
         >
-          <div>
-            <label
-              htmlFor="edit-subject-name"
-              style={{ display: 'block', fontWeight: 600, marginBottom: 4 }}
-            >
-              Name <span style={{ color: 'var(--danger-color)' }}>*</span>
-            </label>
-            <input
-              id="edit-subject-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={120}
-              style={{
-                width: '100%',
-                padding: 8,
-                borderRadius: 4,
-                border: '1px solid var(--border-color)',
-              }}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="edit-subject-description"
-              style={{ display: 'block', fontWeight: 600, marginBottom: 4 }}
-            >
-              Description{' '}
-              <span style={{ color: 'var(--danger-color)' }}>*</span>
-            </label>
-            <textarea
-              id="edit-subject-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={5}
-              style={{
-                width: '100%',
-                padding: 8,
-                borderRadius: 4,
-                border: '1px solid var(--border-color)',
-                resize: 'vertical',
-              }}
-            />
-          </div>
-          <label
-            htmlFor="edit-subject-active"
-            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+              gap: 16,
+              flexWrap: 'wrap',
+            }}
           >
-            <input
-              id="edit-subject-active"
-              type="checkbox"
-              checked={active}
-              onChange={(e) => setActive(e.target.checked)}
-            />{' '}
-            Active
-          </label>
-          {formError && (
-            <p style={{ color: 'var(--danger-color)', fontSize: 12 }}>
-              {formError}
-            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <Button
+                variant="text"
+                onClick={() => navigate({ to: '/admin/subjects' })}
+                style={{ padding: 0, color: 'var(--primary-color)' }}
+              >
+                ← Back
+              </Button>
+              {!editMode && (
+                <Button variant="secondary" onClick={() => setEditMode(true)}>
+                  Edit
+                </Button>
+              )}
+              {editMode && (
+                <>
+                  <Button
+                    variant="primary"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving...' : 'Save'}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setEditMode(false)
+                      setName(subject.name)
+                      setDescription(subject.description)
+                      setActive(subject.isActive)
+                    }}
+                    disabled={saving}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
+              <Button variant="danger" onClick={handleDelete} disabled={saving}>
+                Delete
+              </Button>
+            </div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <span
+                style={{
+                  fontSize: 'var(--small-font-size)',
+                  color: 'var(--secondary-color)',
+                }}
+              >
+                Status:
+              </span>
+              <Badge variant={subject.isActive ? 'success' : 'danger'}>
+                {subject.isActive ? 'Active' : 'Inactive'}
+              </Badge>
+            </div>
+          </div>
+          {!editMode && (
+            <header style={{ marginBottom: '24px' }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 'var(--header-font-size)',
+                  color: 'var(--dark-color)',
+                }}
+              >
+                {subject.name}
+              </h1>
+              <p
+                style={{
+                  margin: '4px 0 8px',
+                  color: 'var(--secondary-color)',
+                  fontSize: 'var(--small-font-size)',
+                  lineHeight: 1.4,
+                }}
+              >
+                {subject.description || 'No description provided.'}
+              </p>
+            </header>
           )}
-        </section>
-      )}
-      <section
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))',
-          gap: '16px',
-          marginBottom: '24px',
-        }}
-      >
-        <InfoBlock label="Subject ID" value={String(subject.id)} />
-        <InfoBlock label="Created" value={formatDate(subject.createdAt)} />
-        <InfoBlock label="Last Updated" value={formatDate(subject.updatedAt)} />
-        <InfoBlock
-          label="Created By"
-          value={subject.createdByName || subject.createdBy || '—'}
-        />
-      </section>
+          {editMode && (
+            <section
+              style={{
+                marginBottom: 24,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
+              }}
+            >
+              <div>
+                <label
+                  htmlFor="edit-subject-name"
+                  style={{ display: 'block', fontWeight: 600, marginBottom: 4 }}
+                >
+                  Name <span style={{ color: 'var(--danger-color)' }}>*</span>
+                </label>
+                <input
+                  id="edit-subject-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={120}
+                  style={{
+                    width: '100%',
+                    padding: 8,
+                    borderRadius: 4,
+                    border: '1px solid var(--border-color)',
+                  }}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="edit-subject-description"
+                  style={{ display: 'block', fontWeight: 600, marginBottom: 4 }}
+                >
+                  Description{' '}
+                  <span style={{ color: 'var(--danger-color)' }}>*</span>
+                </label>
+                <textarea
+                  id="edit-subject-description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={5}
+                  style={{
+                    width: '100%',
+                    padding: 8,
+                    borderRadius: 4,
+                    border: '1px solid var(--border-color)',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+              <label
+                htmlFor="edit-subject-active"
+                style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+              >
+                <input
+                  id="edit-subject-active"
+                  type="checkbox"
+                  checked={active}
+                  onChange={(e) => setActive(e.target.checked)}
+                />{' '}
+                Active
+              </label>
+              {formError && (
+                <p style={{ color: 'var(--danger-color)', fontSize: 12 }}>
+                  {formError}
+                </p>
+              )}
+            </section>
+          )}
+          <section
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))',
+              gap: '16px',
+              marginBottom: '24px',
+            }}
+          >
+            <InfoBlock label="Subject ID" value={String(subject.id)} />
+            <InfoBlock label="Created" value={formatDate(subject.createdAt)} />
+            <InfoBlock
+              label="Last Updated"
+              value={formatDate(subject.updatedAt)}
+            />
+            <InfoBlock
+              label="Created By"
+              value={subject.createdByName || subject.createdBy || '—'}
+            />
+          </section>
+        </div>
+        <div style={{ maxWidth: 340, width: '100%', margin: '0 auto' }}>
+          <TasksAside
+            tasks={tasks}
+            loading={tasksLoading}
+            error={tasksError}
+            onRetry={refetch}
+          />
+        </div>
+      </div>
+      <style>{`
+        @media (min-width: 1080px) {
+          div[data-layout-root] {
+            grid-template-columns: minmax(0, 1fr) 320px;
+          }
+        }
+      `}</style>
     </div>
   )
 }

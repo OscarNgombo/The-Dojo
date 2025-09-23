@@ -17,16 +17,20 @@ export interface UseClientSortResult<T> {
   sortState: SortState<T>
   setSort: (key: keyof T) => void
   clearSort: () => void
+  setSortCustom: (key: keyof T, direction: SortDirection) => void
 }
 
-export function useClientSort<T extends Record<string, any>>(data: T[], options?: UseClientSortOptions<T>): UseClientSortResult<T> {
+export function useClientSort<T extends Record<string, any>>(
+  data: T[],
+  options?: UseClientSortOptions<T>,
+): UseClientSortResult<T> {
   const [sortState, setSortState] = useState<SortState<T>>({
     key: options?.initialKey || null,
     direction: options?.initialDirection || 'asc',
   })
 
   const setSort = useCallback((key: keyof T) => {
-    setSortState(prev => {
+    setSortState((prev) => {
       if (prev.key === key) {
         return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
       }
@@ -34,7 +38,17 @@ export function useClientSort<T extends Record<string, any>>(data: T[], options?
     })
   }, [])
 
-  const clearSort = useCallback(() => setSortState({ key: null, direction: 'asc' }), [])
+  const clearSort = useCallback(
+    () => setSortState({ key: null, direction: 'asc' }),
+    [],
+  )
+
+  const setSortCustom = useCallback(
+    (key: keyof T, direction: SortDirection) => {
+      setSortState({ key, direction })
+    },
+    [],
+  )
 
   const sorted = useMemo(() => {
     if (!sortState.key) return data
@@ -57,5 +71,5 @@ export function useClientSort<T extends Record<string, any>>(data: T[], options?
     return arr
   }, [data, sortState])
 
-  return { sorted, sortState, setSort, clearSort }
+  return { sorted, sortState, setSort, clearSort, setSortCustom }
 }

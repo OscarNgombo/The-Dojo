@@ -70,6 +70,7 @@
 }
 
 .notificationBtn,
+.profileBtn,
 .logoutBtn {
   background: none;
   border: none;
@@ -83,6 +84,7 @@
 }
 
 .notificationBtn:hover,
+.profileBtn:hover,
 .logoutBtn:hover {
   background-color: var(--light-color);
 }
@@ -188,7 +190,7 @@
 .collapsed .navLabel {
   opacity: 0;
   width: 0;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .collapsed .navLink:hover .navLabel {
@@ -293,7 +295,6 @@
   color: var(--secondary-color);
   margin: 0;
 }
-
 
 @media (max-width: 768px) {
   .adminLayout {

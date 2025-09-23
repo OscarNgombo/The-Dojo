@@ -40,7 +40,6 @@ export const Modal: React.FC<ModalProps> = ({
   const lastFocusedElementRef = useRef<Element | null>(null)
   const internalId = useId()
 
-  // Stable ids for title & description for a11y
   const titleId = title ? `modal-${internalId}-title` : undefined
   const descriptionId = description ? `modal-${internalId}-desc` : undefined
 
@@ -52,11 +51,12 @@ export const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     if (!open) return
-    // Defer to end of call stack to allow content to mount
     const id = window.requestAnimationFrame(() => {
       const focusTarget =
         initialFocusRef?.current ||
-        (dialogRef.current?.querySelector('[data-autofocus="true"]') as HTMLElement | null) ||
+        (dialogRef.current?.querySelector(
+          '[data-autofocus="true"]',
+        ) as HTMLElement | null) ||
         dialogRef.current
       if (focusTarget instanceof HTMLElement) {
         focusTarget.focus()
@@ -89,10 +89,12 @@ export const Modal: React.FC<ModalProps> = ({
       }
     }
     document.addEventListener('keydown', handleKey, { capture: true })
-    return () => document.removeEventListener('keydown', handleKey, { capture: true } as any)
+    return () =>
+      document.removeEventListener('keydown', handleKey, {
+        capture: true,
+      } as any)
   }, [open, onClose])
 
-  // Prevent body scroll while modal is open
   useEffect(() => {
     if (!open) return
     const originalOverflow = document.body.style.overflow
@@ -152,13 +154,21 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
         {description && (
-          <p id={descriptionId} className={styles.description} style={{ marginTop: 0 }}>
+          <p
+            id={descriptionId}
+            className={styles.description}
+            style={{ marginTop: 0 }}
+          >
             {description}
           </p>
         )}
         <div className={styles.body}>{children}</div>
         {(primaryAction || secondaryAction) && (
-          <div className={styles.footer} role="group" aria-label="Dialog actions">
+          <div
+            className={styles.footer}
+            role="group"
+            aria-label="Dialog actions"
+          >
             {secondaryAction && (
               <button
                 type="button"

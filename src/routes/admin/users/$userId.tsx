@@ -9,10 +9,10 @@ export const Route = createFileRoute('/admin/users/$userId')({
   validateSearch: (search: Record<string, unknown>) => parseEditMode(search),
   component: () => {
     const { userId } = Route.useParams()
-  Route.useSearch() as ReturnType<typeof parseEditMode> // currently unused but reserved for future edit mode
+    Route.useSearch() as ReturnType<typeof parseEditMode>
     return (
       <Suspense fallback={<CenteredPageSpinner />}>
-        <UserDetailPage userIdParam={userId} /* placeholder for potential initialEdit */ />
+        <UserDetailPage userIdParam={userId} />
       </Suspense>
     )
   },

@@ -165,10 +165,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     debugAuth('loginWithGoogle() start')
 
     try {
-      // For now, we'll decode the token on the client and create a mock session
       const googleUser = decodeGoogleToken(token)
-
-      // Create a mock user object
       const mockUser: User = {
         id: googleUser.sub,
         name: googleUser.name,
@@ -179,7 +176,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         updated_at: new Date().toISOString(),
       }
 
-      // Create a mock session token
       const mockToken = `mock_token_for_${googleUser.sub}`
 
       authService.setToken(mockToken)

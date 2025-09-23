@@ -21,6 +21,7 @@ export const DataTable = <T extends object>({
   rightBadges,
   rightActionsExtra,
   leftActionsExtra,
+  headerStart,
   showFooter = true,
   totalPages,
   currentPage,
@@ -36,6 +37,7 @@ export const DataTable = <T extends object>({
     <div className={styles.dataTableWrapper}>
       <TableActions
         leftActionsExtra={leftActionsExtra}
+        headerStart={headerStart}
         rightBadges={rightBadges}
         rightActionsExtra={rightActionsExtra}
         showSortButton={showSortButton}

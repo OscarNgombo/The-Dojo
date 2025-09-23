@@ -1,71 +1,96 @@
-.rowActions {
-  position: relative;
-  display: inline-block;
-}
+.rowActions { position: relative; display: inline-block; }
 
-.rowActions button {
+/* Trigger button isolated so dropdown item buttons are unaffected */
+.trigger {
   background: var(--light-color);
   border: 1px solid var(--border-color);
-  color: var(--primary-color);
+  color: var(--secondary-color); /* more neutral base instead of primary */
   width: 34px;
   height: 34px;
   padding: 0;
   border-radius: 8px;
   display: inline-flex;
-  gap: 1em;
   align-items: center;
   justify-content: center;
-  transition: var(--transition);
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.rowActions button svg {
-  fill: currentColor;
-  stroke: currentColor;
-  width: 20px;
-  height: 20px;
-  transform: rotate(90deg);
-}
+.trigger svg { fill: currentColor; stroke: currentColor; width: 20px; height: 20px; transform: rotate(90deg); }
 
-.rowActions button:hover,
-.rowActions button:focus-visible {
+.trigger:hover,
+.trigger:focus-visible {
   background: var(--primary-color-alpha-12);
+  color: var(--primary-color);
   border-color: var(--primary-color);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.28); /* focus ring for accessibility */
 }
+
+.trigger:active { background: var(--primary-color-alpha-16); }
 
 .dropdown {
   position: absolute;
   right: 0;
   top: 100%;
-  background-color: #ffffff;
+  margin-top: 4px;
+  background: #ffffff;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
+  border-radius: 10px;
+  box-shadow:
+    0 6px 24px -4px rgba(0, 0, 0, 0.16),
+    0 2px 8px rgba(0, 0, 0, 0.08);
   z-index: 1000;
-  min-width: 120px;
-  padding: 4px 0;
+  min-width: 156px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: fadeScale 120ms ease-out;
+  overflow: hidden;
 }
 
+@keyframes fadeScale {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 .dropdownItem {
-  display: block;
   width: 100%;
-  padding: 10px 14px; /* increased for better tap target */
+  padding: 8px 12px;
   text-align: left;
   border: none;
-  background: none;
+  background: transparent;
   cursor: pointer;
-  font-size: 14px;
-  line-height: 1.2;
+  font-size: 13px;
+  line-height: 1.25;
+  color: var(--dark-color);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  position: relative;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
 }
+.dropdownItem:hover,
+.dropdownItem:focus-visible {
+  background: var(--primary-color-alpha-12);
+  color: var(--dark-color);
+  outline: none;
+}
+.dropdownItem:focus-visible { box-shadow: 0 0 0 2px rgba(52,152,219,0.35); }
+.dropdownItem:active { background: var(--primary-color-alpha-16); }
 
-.dropdownItem:hover {
-  background-color: var(--light-color);
-}
+/* danger / destructive */
+.dropdownItem.danger { color: var(--danger-color); }
+.dropdownItem.danger:hover,
+.dropdownItem.danger:focus-visible { background: rgba(239, 68, 68, 0.10); color: var(--danger-color); }
+.dropdownItem.danger:active { background: rgba(239, 68, 68, 0.16); }
 
-.dropdownItem.danger {
-  color: var(--danger-color);
-}
-
-.dropdownItem.danger:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-}
+/* visual divider between normal & destructive */
+.divider { height: 1px; background: var(--border-color); margin: 4px 4px; border-radius: 1px; }

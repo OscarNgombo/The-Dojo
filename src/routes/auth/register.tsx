@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useAuth } from '../../providers'
+import { useAuth } from '../../providers/AuthProvider'
 import {
   Card,
   CardHeader,

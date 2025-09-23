@@ -7,8 +7,6 @@ const getUsers = async (
   role?: 'admin' | 'trainee',
   status?: 'approved' | 'pending' | 'rejected',
   search?: string,
-  sortField?: 'id' | 'name' | 'email' | 'created_at',
-  sortDirection?: 'asc' | 'desc',
 ): Promise<PaginatedResponse<User>> => {
   const params = new URLSearchParams({
     page: String(page),
@@ -17,8 +15,6 @@ const getUsers = async (
   if (role) params.append('role', role)
   if (status) params.append('status', status)
   if (search) params.append('search', search)
-  if (sortField) params.append('sortField', sortField)
-  if (sortDirection) params.append('sortDirection', sortDirection)
   const response = await apiService.get<PaginatedResponse<User>>(
     `/admin/users?${params.toString()}`,
   )

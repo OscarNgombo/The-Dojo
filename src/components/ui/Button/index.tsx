@@ -8,6 +8,7 @@ type ButtonVariant =
   | 'success'
   | 'text'
   | 'icon'
+  | 'ghost'
 type ButtonSize = 'small' | 'medium' | 'large'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

@@ -6,9 +6,12 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { subjectService } from '../api/subjects'
-import type { Subject, SubjectFormData, RawSubject } from '../types'
+import { subjectService, normalizeSubject } from '@/api/subjects'
+import type { Subject, SubjectFormData, RawSubject } from '@/types'
 import { useToast } from './ToastProvider'
+import { useApiCall } from '@/hooks/useApiCall'
+import { useMutate } from '@/hooks/useMutate'
+import { refetchSubjects } from '@/utils/refetchRollback'
 
 interface SubjectsState {
   subjects: Subject[]
@@ -22,8 +25,7 @@ interface SubjectsState {
 interface FetchSubjectsOptions {
   search?: string
   isActive?: boolean
-  sortField?: 'id' | 'name' | 'created_at'
-  sortDirection?: 'asc' | 'desc'
+  // Sorting intentionally client-side only now.
 }
 
 interface SubjectsActions {
@@ -33,10 +35,7 @@ interface SubjectsActions {
     options?: FetchSubjectsOptions,
   ) => Promise<void>
   createSubject: (data: SubjectFormData) => Promise<Subject | null>
-  updateSubject: (
-    id: string,
-    data: SubjectFormData,
-  ) => Promise<Subject | null>
+  updateSubject: (id: string, data: SubjectFormData) => Promise<Subject | null>
   deleteSubject: (id: string) => Promise<void>
   refetch: () => Promise<void>
 }
@@ -59,17 +58,12 @@ const initialState: SubjectsState = {
   totalCount: 0,
 }
 
-// Normalization from snake_case RawSubject to Subject
-const normalizeSubject = (raw: RawSubject): Subject => ({
-  id: String(raw.id),
-  name: raw.name,
-  description: raw.description,
-  isActive: raw.is_active,
-  createdBy: String(raw.created_by),
-  createdAt: raw.created_at,
-  updatedAt: raw.updated_at,
-  createdByName: raw.created_by_name,
-})
+const ensureSubject = (raw: Subject | RawSubject): Subject => {
+  if ((raw as RawSubject).is_active !== undefined) {
+    return normalizeSubject(raw as RawSubject)
+  }
+  return raw as Subject
+}
 
 export const SubjectsProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<SubjectsState>(initialState)
@@ -78,7 +72,92 @@ export const SubjectsProvider = ({ children }: { children: ReactNode }) => {
     pageSize: number
     options?: FetchSubjectsOptions
   }>({ page: 1, pageSize: 10 })
-  const { addToast } = useToast()
+  useToast()
+
+  const subjectsCall = useApiCall<{
+    records: Array<Subject | RawSubject>
+    current_page: number
+    last_page: number
+    total_count: number
+  }>({ keepPreviousData: true })
+
+
+  const createMut = useMutate<SubjectFormData, Subject>({
+    mutateFn: async (form) => (await subjectService.createSubject(form)).data,
+    optimisticUpdate: (form) => {
+      const temp: Subject = {
+        id: `temp-${Date.now()}`,
+        name: form.name,
+        description: form.description,
+        isActive: form.isActive,
+        createdBy: 'me',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdByName: 'You',
+      }
+      setState((prev) => ({
+        ...prev,
+        subjects: [temp, ...prev.subjects],
+        totalCount: prev.totalCount + 1,
+      }))
+    },
+    rollback: () => { void refetchSubjects(subjectsCall.execute, lastQueryRef.current) },
+    onSuccess: (created) => {
+      const normalized = ensureSubject(created)
+      setState((prev) => ({
+        ...prev,
+        subjects: prev.subjects.map((s) =>
+          s.id.startsWith('temp-') ? normalized : s,
+        ),
+      }))
+    },
+    autoToast: { success: true, error: true },
+    messages: { success: 'Subject created' },
+  })
+
+  const updateMut = useMutate<{ id: string; data: SubjectFormData }, Subject>({
+    mutateFn: async ({ id, data }) =>
+      (await subjectService.updateSubject(id, data)).data,
+    optimisticUpdate: ({ id, data }) => {
+      setState((prev) => ({
+        ...prev,
+        subjects: prev.subjects.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                name: data.name,
+                description: data.description,
+                isActive: data.isActive,
+              }
+            : s,
+        ),
+      }))
+    },
+    rollback: () => { void refetchSubjects(subjectsCall.execute, lastQueryRef.current) },
+    onSuccess: (updated, { id }) => {
+      const norm = ensureSubject(updated)
+      setState((prev) => ({
+        ...prev,
+        subjects: prev.subjects.map((s) => (s.id === id ? norm : s)),
+      }))
+    },
+    autoToast: { success: true, error: true },
+    messages: { success: 'Subject updated' },
+  })
+
+  const deleteMut = useMutate<{ id: string }, { success: boolean }>({
+    mutateFn: async ({ id }) => (await subjectService.deleteSubject(id)).data,
+    optimisticUpdate: ({ id }) => {
+      setState((prev) => ({
+        ...prev,
+        subjects: prev.subjects.filter((s) => s.id !== id),
+        totalCount: prev.totalCount > 0 ? prev.totalCount - 1 : 0,
+      }))
+    },
+    rollback: () => { void refetchSubjects(subjectsCall.execute, lastQueryRef.current) },
+    autoToast: { success: true, error: true },
+    messages: { success: 'Subject deleted' },
+  })
 
   const actions = useMemo<SubjectsActions>(() => {
     const fetchSubjects: SubjectsActions['fetchSubjects'] = async (
@@ -86,124 +165,53 @@ export const SubjectsProvider = ({ children }: { children: ReactNode }) => {
       pageSize = 10,
       options,
     ) => {
-      setState((prev) => ({ ...prev, loading: true, error: null }))
-      try {
-        // Query params for search / active filtering handled client-side for now
-        const resp = await subjectService.getSubjects(page, pageSize)
-        const records = Array.isArray(resp.data.records)
-          ? resp.data.records.map((r) => normalizeSubject(r as unknown as RawSubject))
+      lastQueryRef.current = { page, pageSize, options }
+      const data = await subjectsCall.execute(async () => {
+        const raw = await subjectService.getSubjects(page, pageSize, {
+          search: options?.search,
+          isActive: options?.isActive,
+        })
+        return { success: true, data: raw.data }
+      })
+      if (data) {
+        const records = Array.isArray(data.records)
+          ? data.records.map((r: Subject | RawSubject) => ensureSubject(r))
           : []
-
-        let filtered = records
-        if (options?.isActive !== undefined) {
-          filtered = filtered.filter((s) => s.isActive === options.isActive)
-        }
-        if (options?.search) {
-          const term = options.search.toLowerCase()
-            .trim()
-          filtered = filtered.filter(
-            (s) =>
-              s.name.toLowerCase().includes(term) ||
-              s.description.toLowerCase().includes(term),
-          )
-        }
-        if (options?.sortField) {
-          const { sortField, sortDirection = 'asc' } = options
-          filtered = [...filtered].sort((a, b) => {
-            const dir = sortDirection === 'asc' ? 1 : -1
-            const av = (a as any)[sortField]
-            const bv = (b as any)[sortField]
-            if (av < bv) return -1 * dir
-            if (av > bv) return 1 * dir
-            return 0
-          })
-        } else {
-          // default sort by id asc (numeric compare if possible)
-            filtered = [...filtered].sort((a, b) => {
-              const ai = Number(a.id)
-              const bi = Number(b.id)
-              if (!Number.isNaN(ai) && !Number.isNaN(bi)) return ai - bi
-              return String(a.id).localeCompare(String(b.id))
-            })
-        }
-
-        lastQueryRef.current = { page, pageSize, options }
         setState((prev) => ({
           ...prev,
-            loading: false,
-            subjects: filtered,
-            currentPage: resp.data.current_page,
-            totalPages: resp.data.last_page,
-            totalCount: resp.data.total_count,
+          loading: subjectsCall.loading,
+          error: subjectsCall.error,
+          subjects: records,
+          currentPage: data.current_page,
+          totalPages: data.last_page,
+          totalCount: data.total_count,
         }))
-      } catch (e) {
-        const message = e instanceof Error ? e.message : 'Failed to load subjects'
-        setState((p) => ({ ...p, loading: false, error: message }))
-        addToast({ message, type: 'error' })
+      } else {
+        setState((prev) => ({
+          ...prev,
+          loading: subjectsCall.loading,
+          error: subjectsCall.error,
+        }))
       }
     }
-
     const refetch: SubjectsActions['refetch'] = async () => {
       const { page, pageSize, options } = lastQueryRef.current
       await fetchSubjects(page, pageSize, options)
     }
-
-    const createSubject: SubjectsActions['createSubject'] = async (data) => {
-      try {
-        const resp = await subjectService.createSubject(data)
-        addToast({ message: 'Subject created', type: 'success' })
-        // Optimistic prepend
-        setState((prev) => ({
-          ...prev,
-          subjects: [
-            normalizeSubject(resp.data as unknown as RawSubject),
-            ...prev.subjects,
-          ],
-          totalCount: prev.totalCount + 1,
-        }))
-        return normalizeSubject(resp.data as unknown as RawSubject)
-      } catch (e) {
-        const message = e instanceof Error ? e.message : 'Failed to create subject'
-        addToast({ message, type: 'error' })
-        return null
-      }
+    const createSubject: SubjectsActions['createSubject'] = async (form) => {
+      const res = await createMut.mutate(form)
+      return res ? ensureSubject(res) : null
     }
-
     const updateSubject: SubjectsActions['updateSubject'] = async (
       id,
-      data,
+      form,
     ) => {
-      try {
-        const resp = await subjectService.updateSubject(id, data)
-        const updated = normalizeSubject(resp.data as unknown as RawSubject)
-        setState((prev) => ({
-          ...prev,
-          subjects: prev.subjects.map((s) => (s.id === id ? updated : s)),
-        }))
-        addToast({ message: 'Subject updated', type: 'success' })
-        return updated
-      } catch (e) {
-        const message = e instanceof Error ? e.message : 'Failed to update subject'
-        addToast({ message, type: 'error' })
-        return null
-      }
+      const res = await updateMut.mutate({ id, data: form })
+      return res ? ensureSubject(res) : null
     }
-
     const deleteSubject: SubjectsActions['deleteSubject'] = async (id) => {
-      try {
-        await subjectService.deleteSubject(id)
-        setState((prev) => ({
-          ...prev,
-          subjects: prev.subjects.filter((s) => s.id !== id),
-          totalCount: prev.totalCount > 0 ? prev.totalCount - 1 : 0,
-        }))
-        addToast({ message: 'Subject deleted', type: 'success' })
-      } catch (e) {
-        const message = e instanceof Error ? e.message : 'Failed to delete subject'
-        addToast({ message, type: 'error' })
-      }
+      await deleteMut.mutate({ id })
     }
-
     return {
       fetchSubjects,
       createSubject,
@@ -211,16 +219,9 @@ export const SubjectsProvider = ({ children }: { children: ReactNode }) => {
       deleteSubject,
       refetch,
     }
-  }, [addToast])
+  }, [subjectsCall, createMut, updateMut, deleteMut])
 
-  const contextValue = useMemo(
-    () => ({
-      state,
-      actions,
-    }),
-    [state, actions],
-  )
-
+  const contextValue = useMemo(() => ({ state, actions }), [state, actions])
   return (
     <SubjectsContext.Provider value={contextValue}>
       {children}
