@@ -10,7 +10,17 @@
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier",
-    "check": "prettier --write . && eslint --fix"
+    "check": "prettier --write . && eslint --fix",
+    "docker:dev": "docker-compose up the-dojo-dev",
+    "docker:dev:build": "docker-compose build the-dojo-dev",
+    "docker:prod": "docker-compose --profile production up the-dojo-prod",
+    "docker:prod:build": "docker-compose --profile production build the-dojo-prod",
+    "docker:build": "docker build -t the-dojo .",
+    "docker:build:dev": "docker build --target development -t the-dojo:dev .",
+    "docker:build:prod": "docker build --target production -t the-dojo:prod .",
+    "docker:run:dev": "docker run -p 3000:3000 -v $(pwd)/src:/app/src:cached the-dojo:dev",
+    "docker:run:prod": "docker run -p 80:80 the-dojo:prod",
+    "docker:clean": "docker system prune -f && docker image prune -f"
   },
   "dependencies": {
     "@tanstack/react-devtools": "^0.2.2",

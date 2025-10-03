@@ -1,0 +1,11 @@
+services:
+  the-dojo-dev:
+    environment:
+      # Override environment variables for development
+      - VITE_API_BASE_URL=http://localhost:8080/api
+      - VITE_APP_ENV=development
+      - VITE_DEBUG=true
+    volumes:
+      # Additional development volumes
+      - ./.env.local:/app/.env.local:ro
+    command: ["pnpm", "run", "dev", "--host", "0.0.0.0"]

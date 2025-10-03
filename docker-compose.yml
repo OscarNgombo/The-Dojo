@@ -1,0 +1,43 @@
+services:
+  the-dojo-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: the-dojo-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src:cached
+      - ./public:/app/public:cached
+      - ./index.html:/app/index.html:cached
+      - ./vite.config.ts:/app/vite.config.ts:cached
+      - ./tsconfig.json:/app/tsconfig.json:cached
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8080/api
+    networks:
+      - the-dojo-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+  the-dojo-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: the-dojo-prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - the-dojo-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+networks:
+  the-dojo-network:
+    driver: bridge
